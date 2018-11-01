@@ -3,10 +3,22 @@ import wx
 
 class TransactionView(wx.Dialog):
     def __init__(self):
+        # TODO Experiment with GridBagSizer - it might give better positioning control
         super().__init__(None, size=(400, 600))
         wx.Panel().__init__(self)
-        self.form_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.form_item_border = 5
+        self._form_sizer = wx.BoxSizer(wx.VERTICAL)
+        self._formitem_border = 5
+        self._label_flags = wx.TOP | wx.LEFT | wx.RIGHT
+        self._textctrl_flags = wx.BOTTOM | wx.LEFT | wx.RIGHT
+
+        self._date_textctrl = wx.TextCtrl(self)
+        self._category_textctrl = wx.TextCtrl(self)
+        self._payment_method_textctrl = wx.TextCtrl(self)
+        self._total_expense_textctrl = wx.TextCtrl(self)
+        self._description_textctrl = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
+
+        self.ok_button = wx.Button(self, id=wx.ID_OK, label="&Ok")
+        self.cancel_button = wx.Button(self, id=wx.ID_CANCEL, label="&Cancel")
 
         self._add_form_title()
         self._add_date_controls()
@@ -16,62 +28,65 @@ class TransactionView(wx.Dialog):
         self._add_description_controls()
         self._add_ok_cancel_button_controls()
 
-        self.SetSizer(self.form_sizer)
+        self.SetSizer(self._form_sizer)
+
+    def get_form_values(self):
+        """
+        Need to consider using an explicit data transfer object.
+        Also consider using pertinent data types like DateTime and Money.
+        """
+        return {
+            'date': self._date_textctrl.GetValue(),
+            'category': self._category_textctrl.GetValue(),
+            'payment_method': self._payment_method_textctrl.GetValue(),
+            'total_expense': self._total_expense_textctrl.GetValue(),
+            'description': self._description_textctrl.GetValue()
+        }
 
     def _add_form_title(self):
         transaction_label = wx.StaticText(self, label="Transaction")
         font = wx.Font(18, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         transaction_label.SetFont(font)
-        self.form_sizer.Add(transaction_label, flag=wx.TOP | wx.CENTER, border=self.form_item_border)
+        self._form_sizer.Add(transaction_label, flag=wx.TOP | wx.CENTER, border=self._formitem_border)
 
         static_line = wx.StaticLine(self, style=wx.LI_HORIZONTAL)
-        self.form_sizer.Add(static_line, flag=wx.ALL | wx.EXPAND, border=self.form_item_border)
+        self._form_sizer.Add(static_line, flag=wx.ALL | wx.EXPAND, border=self._formitem_border)
 
     def _add_date_controls(self):
         date_label = wx.StaticText(self, label="YYYY/MM/DD")
-        self.form_sizer.Add(date_label, flag=wx.TOP | wx.LEFT | wx.RIGHT, border=self.form_item_border)
-
-        date_textcontrol = wx.TextCtrl(self)
-        self.form_sizer.Add(date_textcontrol, flag=wx.BOTTOM | wx.LEFT | wx.RIGHT, border=self.form_item_border)
+        self._form_sizer.Add(date_label, flag=self._label_flags, border=self._formitem_border)
+        self._form_sizer.Add(self._date_textctrl, flag=self._textctrl_flags, border=self._formitem_border)
 
     def _add_category_controls(self):
         category_label = wx.StaticText(self, label="Category")
-        self.form_sizer.Add(category_label, flag=wx.TOP | wx.LEFT | wx.RIGHT, border=self.form_item_border)
-
-        category_textcontrol = wx.TextCtrl(self)
-        self.form_sizer.Add(category_textcontrol, flag=wx.EXPAND | wx.BOTTOM | wx.LEFT | wx.RIGHT, border=self.form_item_border)
+        self._form_sizer.Add(category_label, flag=self._label_flags, border=self._formitem_border)
+        self._form_sizer.Add(self._category_textctrl, flag=wx.EXPAND | self._textctrl_flags, border=self._formitem_border)
 
     def _add_payment_method_controls(self):
         payment_method_label = wx.StaticText(self, label="Payment Method")
-        self.form_sizer.Add(payment_method_label, flag=wx.TOP | wx.LEFT | wx.RIGHT, border=self.form_item_border)
-
-        payment_textcontrol = wx.TextCtrl(self)
-        self.form_sizer.Add(payment_textcontrol, flag=wx.EXPAND | wx.BOTTOM | wx.LEFT | wx.RIGHT, border=self.form_item_border)
+        self._form_sizer.Add(payment_method_label, flag=self._label_flags, border=self._formitem_border)
+        self._form_sizer.Add(self._payment_method_textctrl, flag=wx.EXPAND | self._textctrl_flags, border=self._formitem_border)
 
     def _add_expense_controls(self):
         total_expense_label = wx.StaticText(self, label="Total Expense")
-        self.form_sizer.Add(total_expense_label, flag=wx.TOP | wx.LEFT | wx.RIGHT, border=self.form_item_border)
-
-        total_expense_textcontrol = wx.TextCtrl(self)
-        self.form_sizer.Add(total_expense_textcontrol, flag=wx.BOTTOM | wx.LEFT | wx.RIGHT, border=self.form_item_border)
+        self._form_sizer.Add(total_expense_label, flag=self._label_flags, border=self._formitem_border)
+        self._form_sizer.Add(self._total_expense_textctrl, flag=self._textctrl_flags, border=self._formitem_border)
 
     def _add_description_controls(self):
         description_label = wx.StaticText(self, label="Description")
-        self.form_sizer.Add(description_label, flag=wx.TOP | wx.LEFT | wx.RIGHT, border=self.form_item_border)
-
-        description_textcontrol = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
-        self.form_sizer.Add(description_textcontrol, proportion=1, flag=wx.EXPAND | wx.LEFT | wx.RIGHT, border=self.form_item_border)
+        self._form_sizer.Add(description_label, flag=wx.TOP | wx.LEFT | wx.RIGHT, border=self._formitem_border)
+        self._form_sizer.Add(self._description_textctrl, proportion=1, flag=wx.EXPAND | self._textctrl_flags, border=self._formitem_border)
 
     def _add_ok_cancel_button_controls(self):
-        button_sizer = wx.BoxSizer(wx.HORIZONTAL)
-
-        ok_button = wx.Button(self, label="Ok")
-        button_sizer.Add(ok_button, proportion=0, flag=wx.EXPAND | wx.ALL)
-
-        cancel_button = wx.Button(self, label="Cancel")
-        button_sizer.Add(cancel_button, proportion=0, flag=wx.EXPAND | wx.ALL)
-
-        self.form_sizer.Add(button_sizer, flag=wx.ALL | wx.CENTER, border=self.form_item_border)
+        """
+        Still can't figure out how to properly align the buttons.  The difficulty is the opaque behavior of
+        manipulating two sizers within one another.
+        """
+        button_sizer = wx.StdDialogButtonSizer()
+        button_sizer.AddButton(self.ok_button)
+        button_sizer.AddButton(self.cancel_button)
+        button_sizer.Realize()
+        self._form_sizer.Add(button_sizer, flag=wx.ALL | wx.CENTER, border=self._formitem_border)
 
 
 if __name__ == '__main__':

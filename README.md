@@ -1,3 +1,2 @@
-The purpose of Budget App is to help keep track of income and expenses.  This gives the user situational awareness of
-their current financial circumstances which allows them to make informed decisions based on fact, and not intuition.
-
+BudgetApp helps users keep track of both short term and long term financial goals.  By keeping records of both income
+and expenses over time, it allows users to make more informed financial decisions.
