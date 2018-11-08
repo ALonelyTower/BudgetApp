@@ -2,8 +2,10 @@ import wx
 
 
 class TransactionView(wx.Dialog):
+    # TODO: Experiment with GridBagSizer - it might give better positioning control
+    # TODO: Should eventually use pertinent data types like DateTime and Decimal
+    # TODO: Should eventually use Data Transfer Object to codify expected Data Structure
     def __init__(self):
-        # TODO Experiment with GridBagSizer - it might give better positioning control
         super().__init__(None, size=(400, 600))
         wx.Panel().__init__(self)
         self._form_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -31,10 +33,6 @@ class TransactionView(wx.Dialog):
         self.SetSizer(self._form_sizer)
 
     def get_form_values(self):
-        """
-        Need to consider using an explicit data transfer object.
-        Also consider using pertinent data types like DateTime and Money.
-        """
         return {
             'date': self._date_textctrl.GetValue(),
             'category': self._category_textctrl.GetValue(),
@@ -42,6 +40,10 @@ class TransactionView(wx.Dialog):
             'total_expense': self._total_expense_textctrl.GetValue(),
             'description': self._description_textctrl.GetValue()
         }
+
+    def is_user_adding_or_changing_transaction(self):
+        # Return true if the user clicks 'OK', else nothing happens.
+        return self.ShowModal() == wx.ID_OK
 
     def _add_form_title(self):
         transaction_label = wx.StaticText(self, label="Transaction")
@@ -91,6 +93,7 @@ class TransactionView(wx.Dialog):
 
 if __name__ == '__main__':
     app = wx.App()
-    transView = TransactionView()
-    transView.ShowModal()
+    view = TransactionView()
+    view.ShowModal()
+    print(f"Values entered into Form: {view.get_form_values()}")
     app.MainLoop()
