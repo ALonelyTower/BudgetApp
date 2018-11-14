@@ -2,6 +2,7 @@ from database_connection import DatabaseConnection
 
 
 class Transaction:
+    # TODO: Check if cursor.lastrowid is not influenced by others also interacting with the database
     _database_path = None
 
     def __init__(self, primary_key, date, category, payment_method, total_expense, description):
@@ -23,6 +24,20 @@ class Transaction:
             inserted_transaction_id = cursor.lastrowid
 
         return inserted_transaction_id
+
+    def update(self, update_data):
+        update_data = (update_data['date'], update_data['category'], update_data['payment_method'],
+                       update_data['total_expense'], update_data['description'], self._primary_key)
+
+        with DatabaseConnection(self.__class__._database_path) as cursor:
+            cursor.execute("""UPDATE transactions
+                              SET trans_date = ?, trans_category = ?, trans_payment_method = ?,
+                              trans_total_expense = ?, trans_description = ?
+                              WHERE trans_id = ?""", update_data)
+
+            updated_transaction_id = cursor.lastrowid
+
+        return updated_transaction_id
 
     @classmethod
     def set_database_path(cls, database_path):
