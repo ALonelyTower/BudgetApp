@@ -1,9 +1,6 @@
-import sqlite3
+from database_connection import DatabaseConnection
 import pytest
 from model_transaction import Transaction
-
-
-# TODO: Refactor database objects into a context manager for conciseness
 
 
 @pytest.fixture()
@@ -24,43 +21,33 @@ def test_db_path():
 
 
 def clear_test_database_if_exists(db_path):
-    db_conn = sqlite3.connect(db_path)
-    cursor = db_conn.cursor()
-    cursor.execute("""DROP TABLE IF EXISTS transactions""")
-    db_conn.commit()
+    with DatabaseConnection(db_path) as cursor:
+        cursor.execute("""DROP TABLE IF EXISTS transactions""")
 
 
 def create_database(db_path):
-    db_conn = sqlite3.connect(db_path)
-    cursor = db_conn.cursor()
-    cursor.execute("""CREATE TABLE IF NOT EXISTS transactions (
-                        trans_id INTEGER PRIMARY KEY NOT NULL,
-                        trans_date DATE NOT NULL,
-                        trans_category CHAR(50) NOT NULL,
-                        trans_payment_method CHAR(50) NOT NULL,
-                        trans_total_expense DECIMAL(22, 2) NOT NULL,
-                        trans_description VARCHAR(255)
-                        );"""
-                   )
-    db_conn.commit()
-    cursor.close()
-    db_conn.close()
+    with DatabaseConnection(db_path) as cursor:
+        cursor.execute("""CREATE TABLE IF NOT EXISTS transactions (
+                            trans_id INTEGER PRIMARY KEY NOT NULL,
+                            trans_date DATE NOT NULL,
+                            trans_category CHAR(50) NOT NULL,
+                            trans_payment_method CHAR(50) NOT NULL,
+                            trans_total_expense DECIMAL(22, 2) NOT NULL,
+                            trans_description VARCHAR(255)
+                            );"""
+                       )
 
 
 def test_find_transaction_with_id(test_db_path):
-    # TODO: There's gotta be a way to clean this setup code.  Maybe look into context managers.
     clear_test_database_if_exists(test_db_path)
     create_database(test_db_path)
     inserted_data = ("2018-11-11", "Entertainment", "Chase Rewards Card", 5.42, "Subscribed to Twitch Streamer.")
-    db_conn = sqlite3.connect(test_db_path)
-    cursor = db_conn.cursor()
-    cursor.execute("""INSERT INTO transactions (trans_date,trans_category,trans_payment_method,
-                        trans_total_expense,trans_description) VALUES(?,?,?,?,?);""", inserted_data)
-    db_conn.commit()
-    cursor.close()
-    db_conn.close()
-    transaction_id = cursor.lastrowid
-    Transaction.connect_to_database(test_db_path)
+    with DatabaseConnection(test_db_path) as cursor:
+        cursor.execute("""INSERT INTO transactions (trans_date,trans_category,trans_payment_method,
+                            trans_total_expense,trans_description) VALUES(?,?,?,?,?);""", inserted_data)
+        transaction_id = cursor.lastrowid
+
+    Transaction.set_database_path(test_db_path)
 
     transaction = Transaction.find(transaction_id)
 
@@ -69,7 +56,7 @@ def test_find_transaction_with_id(test_db_path):
 
 def test_inserting_transaction_into_database(new_transaction_data, test_db_path):
     clear_test_database_if_exists(test_db_path)
-    Transaction.connect_to_database(test_db_path)
+    Transaction.set_database_path(test_db_path)
     Transaction.create_transaction_table()
 
     transaction_id = Transaction.insert(new_transaction_data)
