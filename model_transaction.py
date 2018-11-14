@@ -1,47 +1,85 @@
-import mock_database
+import sqlite3
 
 
-class TransactionModel:
-    # TODO: Move test objects into own unit test file.
-    def __init__(self, database):
-        self._database = database
+class Transaction:
+    # TODO: Refactor database / sql out of Transaction.
+    _conn = None
 
-    def create(self, transaction_data):
-        return self._database.insert(transaction_data)
+    def __init__(self, primary_key, date, category, payment_method, total_expense, description):
+        self._primary_key = primary_key
+        self._date = date
+        self._category = category
+        self._payment_method = payment_method
+        self._total_expense = total_expense
+        self._description = description
 
-    def read(self, transaction_id):
-        return self._database.select(transaction_id)
+    @classmethod
+    def insert(cls, insert_data):
+        cursor = cls._conn.cursor()
+        inserted_data = (insert_data['date'], insert_data['category'], insert_data['payment_method'],
+                         insert_data['total_expense'], insert_data['description'])
+        cursor.execute("""INSERT INTO transactions (trans_date,trans_category,trans_payment_method,
+                            trans_total_expense,trans_description) VALUES(?,?,?,?,?);""", inserted_data)
+        cls._conn.commit()
+        inserted_transaction_id = cursor.lastrowid
+        cursor.close()
+        return inserted_transaction_id
 
-    def update(self, transaction_id, transaction_data):
-        return self._database.update(transaction_id, transaction_data)
+    @classmethod
+    def connect_to_database(cls, database_path):
+        if cls._conn is None:
+            cls._conn = sqlite3.connect(database_path)
 
-    def delete(self, transaction_id):
-        return self._database.delete(transaction_id)
+    @classmethod
+    def create_transaction_table(cls):
+        cursor = cls._conn.cursor()
+        cursor.execute("""CREATE TABLE IF NOT EXISTS transactions (
+                               trans_id INTEGER PRIMARY KEY NOT NULL,
+                               trans_date DATE NOT NULL,
+                               trans_category CHAR(50) NOT NULL,
+                               trans_payment_method CHAR(50) NOT NULL,
+                               trans_total_expense DECIMAL(22, 2) NOT NULL,
+                               trans_description VARCHAR(255)
+                               );"""
+                       )
+        cls._conn.commit()
 
+    @classmethod
+    def find(cls, transaction_id):
+        first_row = 0
+        cursor = cls._conn.cursor()
+        cursor.execute("SELECT * FROM transactions WHERE trans_id = (?)", (transaction_id,))
+        rows = cursor.fetchall()
+        cursor.close()
+        if rows:
+            row = rows[first_row]
+            return Transaction(primary_key=row[0], date=row[1], category=row[2], payment_method=row[3],
+                               total_expense=row[4],
+                               description=row[5])
+        else:
+            print("Rows are empty.")
+            return 0
 
-if __name__ == '__main__':
-    new_record = {
-        'date': '2018/11/08',
-        'category': 'grocery',
-        'payment_method': 'Paypal',
-        'total_expense': '$9.99',
-        'description': 'Milk and Eggs',
-    }
+    def get_data(self):
+        return {
+            "date": self._date,
+            "category": self._category,
+            "payment_method": self._payment_method,
+            "total_expense": self._total_expense,
+            "description": self._description,
+        }
 
-    mock_database = mock_database.DatabaseMock()
-    transaction_model = TransactionModel(mock_database)
+    def get_tuple(self):
+        return (
+            self._date,
+            self._category,
+            self._payment_method,
+            self._total_expense,
+            self._description,
+        )
 
-    record_key = transaction_model.create(new_record)
-    print(f"New Record Key: {record_key}")
-    print(transaction_model.read(record_key))
-    update_record = {
-        'category': 'movie rental',
-    }
-    transaction_model.update(record_key, update_record)
-    print(transaction_model.read(record_key))
-
-    transaction_model.delete(record_key)
-    print(f"Expected Result should be None: {transaction_model.read(1)}")
+    def _ordered_member_list(self):
+        return self._date, self._category, self._payment_method, self._total_expense, self._description
 
 
 
