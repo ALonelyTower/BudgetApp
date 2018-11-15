@@ -3,6 +3,8 @@ from database_connection import DatabaseConnection
 
 class Transaction:
     # TODO: Check if cursor.lastrowid is not influenced by others also interacting with the database
+    # TODO: Eventually encapsulate SQL queries in its own class (maybe SqliteDatabaseConnection)
+    # TODO: Shift from classmethods to staticmethods.  Doesn't seem needed to pass classes.
     _database_path = None
 
     def __init__(self, primary_key, date, category, payment_method, total_expense, description):
@@ -26,18 +28,35 @@ class Transaction:
         return inserted_transaction_id
 
     def update(self, update_data):
-        update_data = (update_data['date'], update_data['category'], update_data['payment_method'],
-                       update_data['total_expense'], update_data['description'], self._primary_key)
+        # TODO:  Figure out a better way to update instance variables, and output sql statement for update
+                # Issue might resolve itself when we encapsulate the SQL into its own class.
+        self._date = update_data['date']
+        self._category = update_data['category']
+        self._payment_method = update_data['payment_method']
+        self._total_expense = update_data['total_expense']
+        self._description = update_data['description']
 
-        with DatabaseConnection(self.__class__._database_path) as cursor:
+        update_sql_data = self.get_tuple() + (self._primary_key,)
+
+        with DatabaseConnection(type(self)._database_path) as cursor:
             cursor.execute("""UPDATE transactions
                               SET trans_date = ?, trans_category = ?, trans_payment_method = ?,
                               trans_total_expense = ?, trans_description = ?
-                              WHERE trans_id = ?""", update_data)
+                              WHERE trans_id = ?""", update_sql_data)
 
             updated_transaction_id = cursor.lastrowid
 
         return updated_transaction_id
+
+    @classmethod
+    def delete(cls, delete_id):
+        # TODO: Look into scope issues inside and outside of context managers.
+        # TODO: Find out what happens when it tries to delete something that doesn't exist
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute("""DELETE FROM transactions
+                              WHERE trans_id = ?""", (delete_id,))
+
+        return True
 
     @classmethod
     def set_database_path(cls, database_path):
@@ -58,17 +77,16 @@ class Transaction:
 
     @classmethod
     def find(cls, transaction_id):
-        first_row = 0
+        transaction_record = None
+
         with DatabaseConnection(cls._database_path) as cursor:
             cursor.execute("SELECT * FROM transactions WHERE trans_id = (?)", (transaction_id,))
-            rows = cursor.fetchall()
-            if rows:
-                row = rows[first_row]
-                return Transaction(primary_key=row[0], date=row[1], category=row[2], payment_method=row[3],
-                                   total_expense=row[4],
-                                   description=row[5])
-            else:
-                raise ValueError("Transaction not found.")
+            row = cursor.fetchone()
+            if row:
+                transaction_record = Transaction(primary_key=row[0], date=row[1], category=row[2],
+                                                 payment_method=row[3], total_expense=row[4], description=row[5])
+
+        return transaction_record
 
     def get_data(self):
         return {
@@ -91,5 +109,11 @@ class Transaction:
     def _ordered_member_list(self):
         return self._date, self._category, self._payment_method, self._total_expense, self._description
 
+    def __eq__(self, other):
+        return self.get_data() == other.get_data()
+
+    def __repr__(self):
+        return f"Transaction({self._primary_key}, '{self._date}', '{self._category}', {self._payment_method}, " \
+                f"'{self._description}')"
 
 

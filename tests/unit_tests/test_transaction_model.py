@@ -70,14 +70,15 @@ def test_find_existing_transaction_with_id(test_db_path, insert_data_list):
     assert found_transaction.get_tuple() == insert_data_list[transaction_id - 1]
 
 
-def test_raise_error_when_searching_with_id_that_doesnt_exist(test_db_path):
+def test_returns_none_when_finding_nonexistent_transaction(test_db_path):
     clear_test_database_transaction_table_if_exists(test_db_path)
     create_database_transaction_table(test_db_path)
     Transaction.set_database_path(test_db_path)
-    nonexistent_transaction_id = 33
+    nonexistent_transaction_id = 999
 
-    with pytest.raises(ValueError):
-        Transaction.find(nonexistent_transaction_id)
+    transaction_entry = Transaction.find(nonexistent_transaction_id)
+
+    assert transaction_entry is None
 
 
 def test_inserting_transaction_into_database(new_transaction_data, test_db_path):
@@ -100,7 +101,21 @@ def test_update_existing_transaction(insert_data_list, new_transaction_data, tes
 
     transaction_to_update = Transaction.find(transaction_to_update_id)
     transaction_to_update.update(new_transaction_data)
-
     updated_transaction = Transaction.find(transaction_to_update_id)
 
     assert updated_transaction.get_data() == new_transaction_data
+    assert transaction_to_update == updated_transaction
+
+
+def test_delete_existing_transaction(insert_data_list, test_db_path):
+    clear_test_database_transaction_table_if_exists(test_db_path)
+    create_database_transaction_table(test_db_path)
+    populate_database_transaction_table_with_entries(insert_data_list, test_db_path)
+    Transaction.set_database_path(test_db_path)
+    delete_id = 3
+
+    delete_success = Transaction.delete(delete_id)
+    search_result = Transaction.find(delete_id)
+
+    assert delete_success is True
+    assert search_result is None

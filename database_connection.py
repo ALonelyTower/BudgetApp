@@ -19,7 +19,7 @@ class DatabaseConnection:
             self._database_connection.close()
         else:
             self._database_connection.rollback()
-            raise except_type
+            raise except_type(except_value)
 
 
 
