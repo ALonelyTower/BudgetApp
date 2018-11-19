@@ -5,22 +5,23 @@ class TransactionView(wx.Dialog):
     # TODO: Experiment with GridBagSizer - it might give better positioning control
     # TODO: Should eventually use pertinent data types like DateTime and Decimal
     # TODO: Should eventually use Data Transfer Object to codify expected Data Structure
-    def __init__(self):
-        super().__init__(None, size=(400, 600))
-        wx.Panel().__init__(self)
+    def __init__(self, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition, size=wx.DefaultSize,
+                 style=wx.DEFAULT_FRAME_STYLE, name=wx.DialogNameStr):
+        super().__init__(parent, id, title, pos, size=(400, 600), style=style, name=name)
         self._form_sizer = wx.BoxSizer(wx.VERTICAL)
         self._formitem_border = 5
         self._label_flags = wx.TOP | wx.LEFT | wx.RIGHT
         self._textctrl_flags = wx.BOTTOM | wx.LEFT | wx.RIGHT
 
+        self._primary_key = -1
         self._date_textctrl = wx.TextCtrl(self)
         self._category_textctrl = wx.TextCtrl(self)
         self._payment_method_textctrl = wx.TextCtrl(self)
         self._total_expense_textctrl = wx.TextCtrl(self)
         self._description_textctrl = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
 
-        self.ok_button = wx.Button(self, id=wx.ID_OK, label="&Ok")
-        self.cancel_button = wx.Button(self, id=wx.ID_CANCEL, label="&Cancel")
+        self._ok_button = wx.Button(self, id=wx.ID_OK, label="&Ok")
+        self._cancel_button = wx.Button(self, id=wx.ID_CANCEL, label="&Cancel")
 
         self._add_form_title()
         self._add_date_controls()
@@ -32,14 +33,26 @@ class TransactionView(wx.Dialog):
 
         self.SetSizer(self._form_sizer)
 
+    def bind_ok_button(self, button_action):
+        self._ok_button.Bind(wx.EVT_BUTTON, button_action)
+
     def get_form_values(self):
         return {
+            'primary_key': None,
             'date': self._date_textctrl.GetValue(),
             'category': self._category_textctrl.GetValue(),
             'payment_method': self._payment_method_textctrl.GetValue(),
             'total_expense': self._total_expense_textctrl.GetValue(),
             'description': self._description_textctrl.GetValue()
         }
+
+    def set_form_values(self, transaction_data):
+        self._primary_key = transaction_data['primary_key']
+        self._date_textctrl.SetValue(transaction_data['date'])
+        self._category_textctrl.SetValue(transaction_data['category'])
+        self._payment_method_textctrl.SetValue(transaction_data['payment_method'])
+        self._total_expense_textctrl.SetValue(transaction_data['total_expense'])
+        self._description_textctrl.SetValue(transaction_data['description'])
 
     def is_user_adding_or_changing_transaction(self):
         # Return true if the user clicks 'OK', else nothing happens.
@@ -85,8 +98,8 @@ class TransactionView(wx.Dialog):
         manipulating two sizers within one another.
         """
         button_sizer = wx.StdDialogButtonSizer()
-        button_sizer.AddButton(self.ok_button)
-        button_sizer.AddButton(self.cancel_button)
+        button_sizer.AddButton(self._ok_button)
+        button_sizer.AddButton(self._cancel_button)
         button_sizer.Realize()
         self._form_sizer.Add(button_sizer, flag=wx.ALL | wx.CENTER, border=self._formitem_border)
 
