@@ -4,6 +4,9 @@ from sqlite3 import DatabaseError
 
 class DatabaseConnection:
     def __init__(self, database_path):
+        if database_path is None:
+            raise TypeError("Database path must be set prior to access.")
+
         try:
             self._database_connection = sqlite3.connect(database_path)
         except DatabaseError as db_e:

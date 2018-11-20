@@ -32,6 +32,7 @@ class BudgetView(wx.Frame):
         self._create_panel_sizer()
 
         self._menu_bar = view_menu.MenuBar(self)
+        self._context_menu = view_menu.ContextMenu(self._transaction_list_view)
         self.SetMenuBar(self._menu_bar)
 
     def _create_transaction_button(self):
@@ -71,59 +72,48 @@ class BudgetView(wx.Frame):
         point = event.GetPosition()
         index, hit_flag = self._transaction_list_view.HitTest(point)
 
-        if hit_flag is wx.LIST_HITTEST_ABOVE | wx.LIST_HITTEST_ONITEMLABEL:
+        if hit_flag is wx.LIST_HITTEST_ABOVE | wx.LIST_HITTEST_ONITEMLABEL or hit_flag is wx.LIST_HITTEST_ONITEMLABEL:
             self._transaction_list_view.Select(index)
             self._transaction_list_view.Focus(index)
-            menu_position = wx.Point(point.x + 95, point.y + 11)
-            self.PopupMenu(view_menu.ContextMenu(self._transaction_list_view), menu_position)
+            # menu_position = wx.Point(point.x + 98, point.y + 13)
+            self.PopupMenu(self._context_menu)
 
     def set_transaction_list(self, transaction_list):
+        self._transaction_list = transaction_list
+        print(self._transaction_list)
         for index, trans in enumerate(transaction_list):
             # trans_tup = trans.get_tuple()
             list_item = wx.ListItem()
             list_item.SetId(index)
-            list_item.SetText(trans[0])
+            list_item.SetData(trans[0])
+            list_item.SetText(trans[1])
             index = self._transaction_list_view.InsertItem(list_item)
-            self._transaction_list_view.SetItem(index, 1, trans[1])
-            self._transaction_list_view.SetItem(index, 2, trans[2])
-            self._transaction_list_view.SetItem(index, 3, str(trans[3]))
-            self._transaction_list_view.SetItem(index, 4, trans[4])
+            self._transaction_list_view.SetItem(index, 1, trans[2])
+            self._transaction_list_view.SetItem(index, 2, trans[3])
+            self._transaction_list_view.SetItem(index, 3, '$' + str(trans[4]))
+            self._transaction_list_view.SetItem(index, 4, trans[5])
+
+    def get_selected_transaction_id(self):
+        list_id = self._transaction_list_view.GetFirstSelected()
+        return self._transaction_list_view.GetItemData(list_id)
 
     def bind_add_transaction_action(self, button_action):
         self._add_transaction_button.Bind(wx.EVT_BUTTON, button_action)
+
+    def bind_view_transaction_action(self, button_action):
+        self._context_menu.bind_view_menu_item(button_action)
 
 
 if __name__ == '__main__':
     app = wx.App()
     budget = BudgetView()
     budget.set_transaction_list([
-        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
-        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
-        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
-        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
-        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
-        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
-        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
-        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
-        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
-        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
-        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
-        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
-        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
-        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
-        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
-        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
-        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
-        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
-        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
-        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
-        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
-        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
-        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
-        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
-        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
-        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
-        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
-        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
+        (1, "2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
+        (2, "2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
+        (3, "2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
+        (4, "2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
+        (5, "2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
+        (6, "2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
+        (7, "2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
     ])
     app.MainLoop()

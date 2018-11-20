@@ -47,12 +47,23 @@ class TransactionView(wx.Dialog):
         }
 
     def set_form_values(self, transaction_data):
-        self._primary_key = transaction_data['primary_key']
         self._date_textctrl.SetValue(transaction_data['date'])
         self._category_textctrl.SetValue(transaction_data['category'])
         self._payment_method_textctrl.SetValue(transaction_data['payment_method'])
-        self._total_expense_textctrl.SetValue(transaction_data['total_expense'])
+        self._total_expense_textctrl.SetValue(str(transaction_data['total_expense']))
         self._description_textctrl.SetValue(transaction_data['description'])
+
+    def display_view_form(self):
+        self.toggle_widget_controls()
+        self.ShowModal()
+        self.toggle_widget_controls()
+
+    def toggle_widget_controls(self):
+        self._date_textctrl.Disable()
+        self._category_textctrl.Disable()
+        self._payment_method_textctrl.Disable()
+        self._total_expense_textctrl.Disable()
+        self._description_textctrl.Disable()
 
     def is_user_adding_or_changing_transaction(self):
         # Return true if the user clicks 'OK', else nothing happens.

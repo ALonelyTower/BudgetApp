@@ -79,6 +79,9 @@ class Transaction:
     def find(cls, transaction_id):
         transaction_record = None
 
+        if transaction_id is None:
+            raise TypeError(f"Invalid Transaction Id Given: {transaction_id}")
+
         with DatabaseConnection(cls._database_path) as cursor:
             cursor.execute("SELECT * FROM transactions WHERE trans_id = (?)", (transaction_id,))
             row = cursor.fetchone()
@@ -87,6 +90,14 @@ class Transaction:
                                                  payment_method=row[3], total_expense=row[4], description=row[5])
 
         return transaction_record
+
+    @classmethod
+    def find_all(cls):
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute("SELECT * FROM transactions")
+            rows = cursor.fetchall()
+
+        return rows
 
     def get_data(self):
         return {

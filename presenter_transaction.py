@@ -22,6 +22,13 @@ class TransactionPresenter:
             Transaction.create_transaction_table()
             record.update(transaction_data)
 
+    def view_transaction(self, transaction_id=-1):
+        record = Transaction.find(transaction_id)
+        self._transaction_view.set_form_values(record.get_data())
+        self._transaction_view.display_view_form()
+
+
+
     """
     What is my hangup:
         I want to avoid passing around primary keys, but is that really an issue?  It's something you need to do anything,
