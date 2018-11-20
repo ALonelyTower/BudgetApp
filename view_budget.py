@@ -1,5 +1,6 @@
 import wx
 import view_menu
+import collections
 
 
 class BudgetView(wx.Frame):
@@ -14,11 +15,12 @@ class BudgetView(wx.Frame):
         self._init_gui_control_widgets()
 
         self.Bind(wx.EVT_LIST_INSERT_ITEM, self._increment_window_size, self._transaction_list_view)
+        self._transaction_list_view.Bind(wx.EVT_RIGHT_DOWN, self._on_right_click)
 
         self.Show()
 
     def _increment_window_size(self, event):
-        self._window_size.IncBy(0, 10)
+        self._window_size.IncBy(0, 15)
         self.SetSize(self._window_size)
 
     def _init_gui_control_widgets(self):
@@ -61,6 +63,32 @@ class BudgetView(wx.Frame):
 
         self._panel.SetSizer(self._grid_bag_sizer)
 
+    def _on_right_click(self, event):
+        off_flag = 0
+        num_of_entries = self._transaction_list_view.GetItemCount()
+        for index in range(num_of_entries):
+            self._transaction_list_view.Select(index, on=off_flag)
+        point = event.GetPosition()
+        index, hit_flag = self._transaction_list_view.HitTest(point)
+
+        if hit_flag is wx.LIST_HITTEST_ABOVE | wx.LIST_HITTEST_ONITEMLABEL:
+            self._transaction_list_view.Select(index)
+            self._transaction_list_view.Focus(index)
+            menu_position = wx.Point(point.x + 95, point.y + 11)
+            self.PopupMenu(view_menu.ContextMenu(self._transaction_list_view), menu_position)
+
+    def set_transaction_list(self, transaction_list):
+        for index, trans in enumerate(transaction_list):
+            # trans_tup = trans.get_tuple()
+            list_item = wx.ListItem()
+            list_item.SetId(index)
+            list_item.SetText(trans[0])
+            index = self._transaction_list_view.InsertItem(list_item)
+            self._transaction_list_view.SetItem(index, 1, trans[1])
+            self._transaction_list_view.SetItem(index, 2, trans[2])
+            self._transaction_list_view.SetItem(index, 3, str(trans[3]))
+            self._transaction_list_view.SetItem(index, 4, trans[4])
+
     def bind_add_transaction_action(self, button_action):
         self._add_transaction_button.Bind(wx.EVT_BUTTON, button_action)
 
@@ -68,4 +96,34 @@ class BudgetView(wx.Frame):
 if __name__ == '__main__':
     app = wx.App()
     budget = BudgetView()
+    budget.set_transaction_list([
+        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
+        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
+        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
+        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
+        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
+        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
+        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
+        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
+        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
+        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
+        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
+        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
+        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
+        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
+        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
+        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
+        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
+        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
+        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
+        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
+        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
+        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
+        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
+        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
+        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
+        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
+        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
+        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
+    ])
     app.MainLoop()
