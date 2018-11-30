@@ -37,26 +37,21 @@ def insert_data_list():
     return list(trans_dict.values())
 
 
-def clear_test_database_transaction_table_if_exists(db_path):
-    with DatabaseConnection(db_path) as cursor:
-        cursor.execute(sql_scripts.drop_transaction_table_query)
-
-
-def create_database_transaction_table(db_path):
-    with DatabaseConnection(db_path) as cursor:
-        cursor.execute(sql_scripts.create_transaction_table_query)
-
-
-def populate_database_transaction_table_with_entries(insert_data_list, db_path):
+def populate_database_transaction_table_with_entries(db_path, insert_data_list):
     with DatabaseConnection(db_path) as cursor:
         for insert_sql in insert_data_list:
             cursor.execute(sql_scripts.insert_transaction_query, insert_sql)
 
 
+def load_test_database(db_path):
+    with DatabaseConnection(db_path) as cursor:
+        cursor.execute(sql_scripts.drop_transaction_table_query)
+        cursor.execute(sql_scripts.create_transaction_table_query)
+
+
 def test_find_existing_transaction_with_id(test_db_path, insert_data_list):
-    clear_test_database_transaction_table_if_exists(test_db_path)
-    create_database_transaction_table(test_db_path)
-    populate_database_transaction_table_with_entries(insert_data_list, test_db_path)
+    load_test_database(test_db_path)
+    populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
     Transaction.set_database_path(test_db_path)
     transaction_id = 3
 
@@ -66,8 +61,7 @@ def test_find_existing_transaction_with_id(test_db_path, insert_data_list):
 
 
 def test_returns_none_when_finding_nonexistent_transaction(test_db_path):
-    clear_test_database_transaction_table_if_exists(test_db_path)
-    create_database_transaction_table(test_db_path)
+    load_test_database(test_db_path)
     Transaction.set_database_path(test_db_path)
     nonexistent_transaction_id = 999
 
@@ -77,8 +71,7 @@ def test_returns_none_when_finding_nonexistent_transaction(test_db_path):
 
 
 def test_inserting_transaction_into_database(new_transaction_data, test_db_path):
-    clear_test_database_transaction_table_if_exists(test_db_path)
-    create_database_transaction_table(test_db_path)
+    load_test_database(test_db_path)
     Transaction.set_database_path(test_db_path)
 
     transaction_id = Transaction.insert(new_transaction_data)
@@ -88,9 +81,8 @@ def test_inserting_transaction_into_database(new_transaction_data, test_db_path)
 
 
 def test_update_existing_transaction(insert_data_list, new_transaction_data, test_db_path):
-    clear_test_database_transaction_table_if_exists(test_db_path)
-    create_database_transaction_table(test_db_path)
-    populate_database_transaction_table_with_entries(insert_data_list, test_db_path)
+    load_test_database(test_db_path)
+    populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
     Transaction.set_database_path(test_db_path)
     transaction_to_update_id = 3
 
@@ -103,9 +95,8 @@ def test_update_existing_transaction(insert_data_list, new_transaction_data, tes
 
 
 def test_delete_existing_transaction(insert_data_list, test_db_path):
-    clear_test_database_transaction_table_if_exists(test_db_path)
-    create_database_transaction_table(test_db_path)
-    populate_database_transaction_table_with_entries(insert_data_list, test_db_path)
+    load_test_database(test_db_path)
+    populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
     Transaction.set_database_path(test_db_path)
     delete_id = 3
 
