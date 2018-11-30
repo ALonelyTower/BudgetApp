@@ -1,4 +1,5 @@
 from database_connection import DatabaseConnection
+import sql_scripts
 
 
 class Transaction:
@@ -21,8 +22,7 @@ class Transaction:
                          insert_data['total_expense'], insert_data['description'])
 
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute("""INSERT INTO transactions (trans_date,trans_category,trans_payment_method,
-                            trans_total_expense,trans_description) VALUES(?,?,?,?,?);""", inserted_data)
+            cursor.execute(sql_scripts.insert_transaction_query, inserted_data)
             inserted_transaction_id = cursor.lastrowid
 
         return inserted_transaction_id
@@ -39,10 +39,7 @@ class Transaction:
         update_sql_data = self.get_tuple() + (self._primary_key,)
 
         with DatabaseConnection(type(self)._database_path) as cursor:
-            cursor.execute("""UPDATE transactions
-                              SET trans_date = ?, trans_category = ?, trans_payment_method = ?,
-                              trans_total_expense = ?, trans_description = ?
-                              WHERE trans_id = ?""", update_sql_data)
+            cursor.execute(sql_scripts.update_transaction_query, update_sql_data)
 
             updated_transaction_id = cursor.lastrowid
 
@@ -53,8 +50,7 @@ class Transaction:
         # TODO: Look into scope issues inside and outside of context managers.
         # TODO: Find out what happens when it tries to delete something that doesn't exist
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute("""DELETE FROM transactions
-                              WHERE trans_id = ?""", (delete_id,))
+            cursor.execute(sql_scripts.delete_transaction_query, (delete_id,))
 
         return True
 
@@ -65,15 +61,7 @@ class Transaction:
     @classmethod
     def create_transaction_table(cls):
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute("""CREATE TABLE IF NOT EXISTS transactions (
-                               trans_id INTEGER PRIMARY KEY NOT NULL,
-                               trans_date DATE NOT NULL,
-                               trans_category CHAR(50) NOT NULL,
-                               trans_payment_method CHAR(50) NOT NULL,
-                               trans_total_expense DECIMAL(22, 2) NOT NULL,
-                               trans_description VARCHAR(255)
-                               );"""
-                           )
+            cursor.execute(sql_scripts.create_transaction_table_query)
 
     @classmethod
     def find(cls, transaction_id):
@@ -83,7 +71,7 @@ class Transaction:
             raise TypeError(f"Invalid Transaction Id Given: {transaction_id}")
 
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute("SELECT * FROM transactions WHERE trans_id = (?)", (transaction_id,))
+            cursor.execute(sql_scripts.find_transaction_by_id_query, (transaction_id,))
             row = cursor.fetchone()
             if row:
                 transaction_record = Transaction(primary_key=row[0], date=row[1], category=row[2],
@@ -94,7 +82,7 @@ class Transaction:
     @classmethod
     def find_all(cls):
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute("SELECT * FROM transactions")
+            cursor.execute(sql_scripts.find_all_transactions)
             rows = cursor.fetchall()
 
         return rows

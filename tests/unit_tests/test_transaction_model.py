@@ -1,6 +1,9 @@
-from database_connection import DatabaseConnection
 import pytest
+
+
+from database_connection import DatabaseConnection
 from model_transaction import Transaction
+import sql_scripts
 
 
 @pytest.fixture()
@@ -35,27 +38,18 @@ def insert_data_list():
 
 def clear_test_database_transaction_table_if_exists(db_path):
     with DatabaseConnection(db_path) as cursor:
-        cursor.execute("""DROP TABLE IF EXISTS transactions""")
+        cursor.execute(sql_scripts.drop_transaction_table_query)
 
 
 def create_database_transaction_table(db_path):
     with DatabaseConnection(db_path) as cursor:
-        cursor.execute("""CREATE TABLE IF NOT EXISTS transactions (
-                            trans_id INTEGER PRIMARY KEY NOT NULL,
-                            trans_date DATE NOT NULL,
-                            trans_category CHAR(50) NOT NULL,
-                            trans_payment_method CHAR(50) NOT NULL,
-                            trans_total_expense DECIMAL(22, 2) NOT NULL,
-                            trans_description VARCHAR(255)
-                            );"""
-                       )
+        cursor.execute(sql_scripts.create_transaction_table_query)
 
 
 def populate_database_transaction_table_with_entries(insert_data_list, db_path):
     with DatabaseConnection(db_path) as cursor:
         for insert_sql in insert_data_list:
-            cursor.execute("""INSERT INTO transactions (trans_date,trans_category,trans_payment_method,
-                                trans_total_expense,trans_description) VALUES(?,?,?,?,?);""", insert_sql)
+            cursor.execute(sql_scripts.insert_transaction_query, insert_sql)
 
 
 def test_find_existing_transaction_with_id(test_db_path, insert_data_list):
