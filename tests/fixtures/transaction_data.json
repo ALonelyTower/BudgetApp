@@ -1,0 +1,51 @@
+{
+  "1" : [
+    "2018-01-11",
+    "Grocery",
+    "Cash",
+    43.11,
+    "Ran out of whole milk, and beef stew ingredients."
+  ],
+  "2" : [
+    "2018-02-23",
+    "Utility",
+    "Chase Visa",
+    1000.32,
+    "Charter Xfinity Time Warner Cable Internet."
+  ],
+  "3" : [
+    "2018-01-11",
+    "Maintenance",
+    "Cash",
+    200.00,
+    "Leaky ceiling repairs."
+  ],
+  "4" : [
+    "2018-01-11",
+    "Entertainment",
+    "US Bank Visa",
+    12.41,
+    "Movie Ticket: Infinity War"
+  ],
+  "5" : [
+    "2018-01-11",
+    "Education",
+    "Cash",
+    2341.11,
+    "College Tuition Payment"
+  ],
+  "6" : [
+    "2018-01-11",
+    "Dine-out",
+    "American Bank Mastercard",
+    41.13,
+    "Jiro's Sushi"
+  ],
+  "7" : [
+    "2018-01-11",
+    "Grocery",
+    "ApplePay",
+    21.91,
+    "Ingredients for Beef Curry"
+  ]
+}

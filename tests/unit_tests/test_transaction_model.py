@@ -5,6 +5,8 @@ from database_connection import DatabaseConnection
 from model_transaction import Transaction
 import sql_scripts
 
+FIXTURE_DIR = "fixtures"
+
 
 @pytest.fixture()
 def new_transaction_data():
@@ -25,15 +27,14 @@ def test_db_path():
 
 @pytest.fixture()
 def insert_data_list():
-    return [
-        ("2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
-        ("2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
-        ("2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
-        ("2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
-        ("2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
-        ("2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
-        ("2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
-    ]
+    import json
+    from pathlib import Path
+    cwd = Path.cwd()
+    parent = cwd.parent
+
+    with open(parent / "fixtures\\transaction_data.json") as json_fp:
+        trans_dict = json.load(json_fp)
+    return list(trans_dict.values())
 
 
 def clear_test_database_transaction_table_if_exists(db_path):
@@ -61,7 +62,7 @@ def test_find_existing_transaction_with_id(test_db_path, insert_data_list):
 
     found_transaction = Transaction.find(transaction_id)
 
-    assert found_transaction.get_tuple() == insert_data_list[transaction_id - 1]
+    assert found_transaction.get_list() == insert_data_list[transaction_id - 1]
 
 
 def test_returns_none_when_finding_nonexistent_transaction(test_db_path):

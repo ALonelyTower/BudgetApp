@@ -36,7 +36,7 @@ class Transaction:
         self._total_expense = update_data['total_expense']
         self._description = update_data['description']
 
-        update_sql_data = self.get_tuple() + (self._primary_key,)
+        update_sql_data = self.get_list() + [self._primary_key,]
 
         with DatabaseConnection(type(self)._database_path) as cursor:
             cursor.execute(sql_scripts.update_transaction_query, update_sql_data)
@@ -96,14 +96,14 @@ class Transaction:
             "description": self._description,
         }
 
-    def get_tuple(self):
-        return (
+    def get_list(self):
+        return [
             self._date,
             self._category,
             self._payment_method,
             self._total_expense,
             self._description,
-        )
+        ]
 
     def _ordered_member_list(self):
         return self._date, self._category, self._payment_method, self._total_expense, self._description
