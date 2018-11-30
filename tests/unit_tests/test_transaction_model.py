@@ -4,8 +4,7 @@ import pytest
 from database_connection import DatabaseConnection
 from model_transaction import Transaction
 import sql_scripts
-
-FIXTURE_DIR = "fixtures"
+import settings
 
 
 @pytest.fixture()
@@ -21,8 +20,7 @@ def new_transaction_data():
 
 @pytest.fixture()
 def test_db_path():
-    from pathlib import Path
-    return str(Path.cwd() / "test_transaction.db")
+    return settings.DB_PATH
 
 
 @pytest.fixture()
@@ -46,13 +44,14 @@ def populate_database_transaction_table_with_entries(db_path, insert_data_list):
 def load_test_database(db_path):
     with DatabaseConnection(db_path) as cursor:
         cursor.execute(sql_scripts.drop_transaction_table_query)
+
+    with DatabaseConnection(db_path) as cursor:
         cursor.execute(sql_scripts.create_transaction_table_query)
 
 
 def test_find_existing_transaction_with_id(test_db_path, insert_data_list):
     load_test_database(test_db_path)
     populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
-    Transaction.set_database_path(test_db_path)
     transaction_id = 3
 
     found_transaction = Transaction.find(transaction_id)
@@ -62,7 +61,6 @@ def test_find_existing_transaction_with_id(test_db_path, insert_data_list):
 
 def test_returns_none_when_finding_nonexistent_transaction(test_db_path):
     load_test_database(test_db_path)
-    Transaction.set_database_path(test_db_path)
     nonexistent_transaction_id = 999
 
     transaction_entry = Transaction.find(nonexistent_transaction_id)
@@ -72,7 +70,6 @@ def test_returns_none_when_finding_nonexistent_transaction(test_db_path):
 
 def test_inserting_transaction_into_database(new_transaction_data, test_db_path):
     load_test_database(test_db_path)
-    Transaction.set_database_path(test_db_path)
 
     transaction_id = Transaction.insert(new_transaction_data)
 
@@ -83,7 +80,6 @@ def test_inserting_transaction_into_database(new_transaction_data, test_db_path)
 def test_update_existing_transaction(insert_data_list, new_transaction_data, test_db_path):
     load_test_database(test_db_path)
     populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
-    Transaction.set_database_path(test_db_path)
     transaction_to_update_id = 3
 
     transaction_to_update = Transaction.find(transaction_to_update_id)
@@ -97,7 +93,6 @@ def test_update_existing_transaction(insert_data_list, new_transaction_data, tes
 def test_delete_existing_transaction(insert_data_list, test_db_path):
     load_test_database(test_db_path)
     populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
-    Transaction.set_database_path(test_db_path)
     delete_id = 3
 
     delete_success = Transaction.delete(delete_id)

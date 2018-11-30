@@ -1,4 +1,5 @@
 from database_connection import DatabaseConnection
+import settings
 import sql_scripts
 
 
@@ -6,7 +7,7 @@ class Transaction:
     # TODO: Check if cursor.lastrowid is not influenced by others also interacting with the database
     # TODO: Eventually encapsulate SQL queries in its own class (maybe SqliteDatabaseConnection)
     # TODO: Shift from classmethods to staticmethods.  Doesn't seem needed to pass classes.
-    _database_path = None
+    _database_path = settings.DB_PATH
 
     def __init__(self, primary_key, date, category, payment_method, total_expense, description):
         self._primary_key = primary_key
@@ -53,15 +54,6 @@ class Transaction:
             cursor.execute(sql_scripts.delete_transaction_query, (delete_id,))
 
         return True
-
-    @classmethod
-    def set_database_path(cls, database_path):
-        cls._database_path = database_path
-
-    @classmethod
-    def create_transaction_table(cls):
-        with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.create_transaction_table_query)
 
     @classmethod
     def find(cls, transaction_id):
