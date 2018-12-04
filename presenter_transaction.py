@@ -4,28 +4,34 @@ from model_transaction import Transaction
 class TransactionPresenter:
     def __init__(self, transaction_view):
         self._transaction_view = transaction_view
+        self._subscribers = []
 
     def create_new_transaction(self, event):
         # Look into Interactor to remove requirement for event parameter
         if self._transaction_view.is_user_adding_or_changing_transaction():
             transaction_data = self._transaction_view.get_form_values()
-            Transaction.set_database_path("W:\\BudgetApp\\dev_database.db")
-            Transaction.create_transaction_table()
             Transaction.insert(transaction_data)
+            self._update_subscriber()
 
-    def edit_transaction(self, event, id):
-        record = Transaction.find(id)
+    def edit_transaction(self, event, transaction_id):
+        record = Transaction.find(transaction_id)
         self._transaction_view.set_form_values(record.get_data())
         if self._transaction_view.is_user_adding_or_changing_transaction():
             transaction_data = self._transaction_view.get_form_values()
-            Transaction.set_database_path("W:\\BudgetApp\\dev_database.db")
-            Transaction.create_transaction_table()
             record.update(transaction_data)
 
-    def view_transaction(self, transaction_id=-1):
+    def view_transaction(self, transaction_id):
         record = Transaction.find(transaction_id)
         self._transaction_view.set_form_values(record.get_data())
         self._transaction_view.display_view_form()
+
+    def register_subscriber(self, subscriber):
+        self._subscribers.append(subscriber)
+
+    def _update_subscriber(self):
+        for subscriber in self._subscribers:
+            subscriber.update()
+
 
 
 

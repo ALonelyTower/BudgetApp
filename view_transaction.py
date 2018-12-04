@@ -8,21 +8,33 @@ class TransactionView(wx.Dialog):
     def __init__(self, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition, size=wx.DefaultSize,
                  style=wx.DEFAULT_FRAME_STYLE, name=wx.DialogNameStr):
         super().__init__(parent, id, title, pos, size=(400, 600), style=style, name=name)
-        self._form_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        self._set_flags_and_sizers()
+        self._declare_widget_ctrls()
+        self._add_ctrls_to_sizer()
+
+        self.SetSizer(self._form_sizer)
+
+    def _set_flags_and_sizers(self):
         self._formitem_border = 5
         self._label_flags = wx.TOP | wx.LEFT | wx.RIGHT
         self._textctrl_flags = wx.BOTTOM | wx.LEFT | wx.RIGHT
+        self._ctrls_enabled = True
 
-        self._primary_key = -1
+    def _declare_widget_ctrls(self):
         self._date_textctrl = wx.TextCtrl(self)
         self._category_textctrl = wx.TextCtrl(self)
         self._payment_method_textctrl = wx.TextCtrl(self)
         self._total_expense_textctrl = wx.TextCtrl(self)
         self._description_textctrl = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
 
+        self._ctrl_list = [self._date_textctrl, self._category_textctrl, self._payment_method_textctrl,
+                           self._total_expense_textctrl, self._description_textctrl]
         self._ok_button = wx.Button(self, id=wx.ID_OK, label="&Ok")
         self._cancel_button = wx.Button(self, id=wx.ID_CANCEL, label="&Cancel")
 
+    def _add_ctrls_to_sizer(self):
+        self._form_sizer = wx.BoxSizer(wx.VERTICAL)
         self._add_form_title()
         self._add_date_controls()
         self._add_category_controls()
@@ -30,8 +42,6 @@ class TransactionView(wx.Dialog):
         self._add_expense_controls()
         self._add_description_controls()
         self._add_ok_cancel_button_controls()
-
-        self.SetSizer(self._form_sizer)
 
     def bind_ok_button(self, button_action):
         self._ok_button.Bind(wx.EVT_BUTTON, button_action)
@@ -57,13 +67,18 @@ class TransactionView(wx.Dialog):
         self.toggle_widget_controls()
         self.ShowModal()
         self.toggle_widget_controls()
+        for ctrl in self._ctrl_list:
+            ctrl.Clear()
 
     def toggle_widget_controls(self):
-        self._date_textctrl.Disable()
-        self._category_textctrl.Disable()
-        self._payment_method_textctrl.Disable()
-        self._total_expense_textctrl.Disable()
-        self._description_textctrl.Disable()
+        if self._ctrls_enabled:
+            for ctrl in self._ctrl_list:
+                ctrl.Disable()
+            self._ctrls_enabled = False
+        else:
+            for ctrl in self._ctrl_list:
+                ctrl.Enable()
+            self._ctrls_enabled = True
 
     def is_user_adding_or_changing_transaction(self):
         # Return true if the user clicks 'OK', else nothing happens.

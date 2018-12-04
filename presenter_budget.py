@@ -8,17 +8,24 @@ from model_transaction import Transaction
 class BudgetPresenter:
     def __init__(self, budget_view, trans_presenter):
         self._budget_view = budget_view
-        transaction_list = Transaction.find_all()
-        self._budget_view.set_transaction_list(transaction_list)
+        self._refresh_transaction_list()
+
         self._trans_presenter = trans_presenter
+        self._trans_presenter.register_subscriber(self)
 
         self._budget_view.bind_add_transaction_action(self._trans_presenter.create_new_transaction)
         self._budget_view.bind_view_transaction_action(self.view_transaction_item)
-        self._budget_view.Show()
+
+    def _refresh_transaction_list(self):
+        transaction_list = Transaction.find_all()
+        self._budget_view.set_transaction_list_ctrl(transaction_list)
 
     def view_transaction_item(self, event):
         transaction_id = self._budget_view.get_selected_transaction_id()
         self._trans_presenter.view_transaction(transaction_id=transaction_id)
+
+    def update(self):
+        self._refresh_transaction_list()
 
 
 if __name__ == '__main__':

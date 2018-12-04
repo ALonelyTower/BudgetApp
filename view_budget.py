@@ -1,48 +1,65 @@
 import wx
+import os
+
+
 import view_menu
-import collections
 
 
 class BudgetView(wx.Frame):
+    # TODO: Add Asset class
     def __init__(self, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition, size=wx.DefaultSize,
                  style=wx.DEFAULT_FRAME_STYLE, name=wx.FrameNameStr):
         # Unnecessary, but prefer to be explicit as it was driving me crazy keeping track.
         super().__init__(parent, id, title, pos, size, style, name)
 
-        self._window_size = wx.Size(1050, 240)
-        self.SetMinSize(wx.Size(self._window_size))
-
+        self._set_default_window_size()
         self._init_gui_control_widgets()
-
-        self.Bind(wx.EVT_LIST_INSERT_ITEM, self._increment_window_size, self._transaction_list_view)
-        self._transaction_list_view.Bind(wx.EVT_RIGHT_DOWN, self._on_right_click)
+        self._bind_commands_to_gui_controls()
 
         self.Show()
 
-    def _increment_window_size(self, event):
-        self._window_size.IncBy(0, 15)
-        self.SetSize(self._window_size)
+    def _set_default_window_size(self):
+        self._window_size = wx.Size(1050, 240)
+        self.SetMinSize(wx.Size(self._window_size))
 
     def _init_gui_control_widgets(self):
         # Methods are positionally dependent.  Reordering them may break things.
         self._panel = wx.Panel(parent=self)
 
         self._create_transaction_button()
-        self._create_transaction_list()
+        self._create_transaction_table()
         self._create_panel_sizer()
 
         self._menu_bar = view_menu.MenuBar(self)
         self._context_menu = view_menu.ContextMenu(self._transaction_list_view)
         self.SetMenuBar(self._menu_bar)
 
-    def _create_transaction_button(self):
-        add_bitmap_icon = wx.Bitmap("W:\\BudgetApp\\appbar_add.png")
-        self._add_transaction_button = wx.BitmapButton(parent=self._panel, id=wx.ID_ANY,
-                                                       bitmap=add_bitmap_icon, pos=wx.DefaultPosition,
-                                                       size=(75, 75), style=wx.BU_AUTODRAW,
-                                                       validator=wx.DefaultValidator, name="Add Transaction")
+    def _bind_commands_to_gui_controls(self):
+        self.Bind(wx.EVT_LIST_INSERT_ITEM, self._increment_window_size, self._transaction_list_view)
+        self._transaction_list_view.Bind(wx.EVT_RIGHT_DOWN, self._on_right_click)
 
-    def _create_transaction_list(self):
+    def _increment_window_size(self, event):
+        self._window_size.IncBy(0, 12)
+        self.SetSize(self._window_size)
+
+    def _create_transaction_button(self):
+        bitmap_image_path = "W:\\BudgetApp\\appbar_add.png"
+        if self._bitmap_image_exists(bitmap_image_path):
+            add_bitmap_icon = wx.Bitmap("W:\\BudgetApp\\appbar_add.png")
+            self._add_transaction_button = wx.BitmapButton(parent=self._panel, id=wx.ID_ANY,
+                                                           bitmap=add_bitmap_icon, pos=wx.DefaultPosition,
+                                                           size=(75, 75), style=wx.BU_AUTODRAW,
+                                                           validator=wx.DefaultValidator, name="Add Transaction")
+        else:
+            self._add_transaction_button = wx.Button(parent=self._panel, id=wx.ID_ANY, label="Add Transaction",
+                                                     pos=wx.DefaultPosition, size=wx.DefaultSize, style=0,
+                                                     validator=wx.DefaultValidator, name="Add Transaction")
+
+    @staticmethod
+    def _bitmap_image_exists(path):
+        return os.path.isfile(path)
+
+    def _create_transaction_table(self):
         self._transaction_list_view = wx.ListView(self._panel, style=wx.LC_REPORT)
         self._transaction_list_view.InsertColumn(col=1, heading="Date", format=wx.LIST_FORMAT_CENTER, width=100)
         self._transaction_list_view.InsertColumn(col=2, heading="Category", format=wx.LIST_FORMAT_CENTER, width=200)
@@ -75,23 +92,25 @@ class BudgetView(wx.Frame):
         if hit_flag is wx.LIST_HITTEST_ABOVE | wx.LIST_HITTEST_ONITEMLABEL or hit_flag is wx.LIST_HITTEST_ONITEMLABEL:
             self._transaction_list_view.Select(index)
             self._transaction_list_view.Focus(index)
-            # menu_position = wx.Point(point.x + 98, point.y + 13)
             self.PopupMenu(self._context_menu)
 
-    def set_transaction_list(self, transaction_list):
-        self._transaction_list = transaction_list
-        print(self._transaction_list)
+    def set_transaction_list_ctrl(self, transaction_list):
+        # TODO: Refactor for readability
+        self._transaction_list_view.DeleteAllItems()
         for index, trans in enumerate(transaction_list):
-            # trans_tup = trans.get_tuple()
-            list_item = wx.ListItem()
-            list_item.SetId(index)
-            list_item.SetData(trans[0])
-            list_item.SetText(trans[1])
+            list_item = self._create_list_item(index, trans[0], trans[1])
             index = self._transaction_list_view.InsertItem(list_item)
             self._transaction_list_view.SetItem(index, 1, trans[2])
             self._transaction_list_view.SetItem(index, 2, trans[3])
             self._transaction_list_view.SetItem(index, 3, '$' + str(trans[4]))
             self._transaction_list_view.SetItem(index, 4, trans[5])
+
+    def _create_list_item(self, index, primary_key, date):
+        list_item = wx.ListItem()
+        list_item.SetId(index)
+        list_item.SetData(primary_key)
+        list_item.SetText(date)
+        return list_item
 
     def get_selected_transaction_id(self):
         list_id = self._transaction_list_view.GetFirstSelected()
@@ -107,7 +126,7 @@ class BudgetView(wx.Frame):
 if __name__ == '__main__':
     app = wx.App()
     budget = BudgetView()
-    budget.set_transaction_list([
+    budget.set_transaction_list_ctrl([
         (1, "2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
         (2, "2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
         (3, "2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
