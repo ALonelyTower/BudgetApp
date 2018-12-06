@@ -1,4 +1,3 @@
-import wx
 from view_budget import BudgetView
 from presenter_transaction import TransactionPresenter
 from view_transaction import TransactionView
@@ -29,11 +28,14 @@ class BudgetPresenter:
 
 
 if __name__ == '__main__':
-    app = wx.App()
+    import wx
+    app = wx.App(False)
     budget_v = BudgetView()
-    trans_p = TransactionPresenter(TransactionView())
+    trans_p = TransactionPresenter()
     budget_presenter = BudgetPresenter(budget_v, trans_p)
+    budget_v.start()
     app.MainLoop()
+
 # Create New Transaction Button
 # Create Edit Transaction Button
 # Create ListView Transaction Button

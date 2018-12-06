@@ -6,13 +6,12 @@ class TransactionView(wx.Dialog):
     # TODO: Should eventually use pertinent data types like DateTime and Decimal
     # TODO: Should eventually use Data Transfer Object to codify expected Data Structure
     def __init__(self, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition, size=wx.DefaultSize,
-                 style=wx.DEFAULT_FRAME_STYLE, name=wx.DialogNameStr):
+                 style=wx.DEFAULT_DIALOG_STYLE, name=wx.DialogNameStr):
         super().__init__(parent, id, title, pos, size=(400, 600), style=style, name=name)
 
         self._set_flags_and_sizers()
         self._declare_widget_ctrls()
         self._add_ctrls_to_sizer()
-
         self.SetSizer(self._form_sizer)
 
     def _set_flags_and_sizers(self):
@@ -133,6 +132,6 @@ class TransactionView(wx.Dialog):
 if __name__ == '__main__':
     app = wx.App()
     view = TransactionView()
-    view.ShowModal()
-    print(f"Values entered into Form: {view.get_form_values()}")
+    view.display_view_form()
     app.MainLoop()
+

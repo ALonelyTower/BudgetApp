@@ -16,8 +16,6 @@ class BudgetView(wx.Frame):
         self._init_gui_control_widgets()
         self._bind_commands_to_gui_controls()
 
-        self.Show()
-
     def _set_default_window_size(self):
         self._window_size = wx.Size(1050, 240)
         self.SetMinSize(wx.Size(self._window_size))
@@ -37,6 +35,9 @@ class BudgetView(wx.Frame):
     def _bind_commands_to_gui_controls(self):
         self.Bind(wx.EVT_LIST_INSERT_ITEM, self._increment_window_size, self._transaction_list_view)
         self._transaction_list_view.Bind(wx.EVT_RIGHT_DOWN, self._on_right_click)
+
+    def start(self):
+        self.Show()
 
     def _increment_window_size(self, event):
         self._window_size.IncBy(0, 12)
@@ -124,7 +125,7 @@ class BudgetView(wx.Frame):
 
 
 if __name__ == '__main__':
-    app = wx.App()
+    app = wx.App(False)
     budget = BudgetView()
     budget.set_transaction_list_ctrl([
         (1, "2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
@@ -135,4 +136,5 @@ if __name__ == '__main__':
         (6, "2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
         (7, "2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
     ])
+    budget.start()
     app.MainLoop()
