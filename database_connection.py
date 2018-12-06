@@ -1,4 +1,6 @@
 import sqlite3
+import settings
+import sql_scripts
 from sqlite3 import DatabaseError
 
 
@@ -25,4 +27,41 @@ class DatabaseConnection:
             raise except_type(except_value)
 
 
+class Database:
+    _database_path = settings.DB_PATH
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def insert(cls, inserted_data):
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute(sql_scripts.insert_transaction_query, inserted_data)
+            return cursor.lastrowid
+
+    @classmethod
+    def update(cls, updated_data):
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute(sql_scripts.update_transaction_query, updated_data)
+
+            return cursor.lastrowid
+
+    @classmethod
+    def delete(cls, delete_id):
+        # TODO: Figure out what is returned when deleting a row
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute(sql_scripts.delete_transaction_query, (delete_id,))
+            return True
+
+    @classmethod
+    def find(cls, transaction_id):
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute(sql_scripts.find_transaction_by_id_query, (transaction_id,))
+            return cursor.fetchone()
+
+    @classmethod
+    def find_all(cls):
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute(sql_scripts.find_all_transactions)
+            return cursor.fetchall()
 

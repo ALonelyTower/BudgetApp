@@ -1,10 +1,6 @@
 import pytest
-
-
-from database_connection import DatabaseConnection
+from unittest.mock import patch
 from model_transaction import Transaction
-import sql_scripts
-import settings
 
 
 @pytest.fixture()
@@ -18,85 +14,63 @@ def new_transaction_data():
     }
 
 
-@pytest.fixture()
-def test_db_path():
-    return settings.DB_PATH
-
-
-@pytest.fixture()
-def insert_data_list():
-    import json
-    from pathlib import Path
-    cwd = Path.cwd()
-    parent = cwd.parent
-
-    with open(parent / "fixtures\\transaction_data.json") as json_fp:
-        trans_dict = json.load(json_fp)
-    return list(trans_dict.values())
-
-
-def populate_database_transaction_table_with_entries(db_path, insert_data_list):
-    with DatabaseConnection(db_path) as cursor:
-        for insert_sql in insert_data_list:
-            cursor.execute(sql_scripts.insert_transaction_query, insert_sql)
-
-
-def load_test_database(db_path):
-    with DatabaseConnection(db_path) as cursor:
-        cursor.execute(sql_scripts.drop_transaction_table_query)
-
-    with DatabaseConnection(db_path) as cursor:
-        cursor.execute(sql_scripts.create_transaction_table_query)
-
-
-def test_find_existing_transaction_with_id(test_db_path, insert_data_list):
-    load_test_database(test_db_path)
-    populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
+@patch("database_connection.Database.find")
+def test_find_existing_transaction_with_id(db_find_mock):
     transaction_id = 3
+    expected_transaction = Transaction(primary_key=transaction_id, date="2018-12-12", category="Testing",
+                                       payment_method="Credit Card", total_expense=99.99,
+                                       description="This is only a test")
+    db_find_mock.return_value = [transaction_id] + expected_transaction.get_list_of_values()
 
     found_transaction = Transaction.find(transaction_id)
 
-    assert found_transaction.get_list() == insert_data_list[transaction_id - 1]
+    db_find_mock.assert_called_with(transaction_id)
+    assert found_transaction is not None
+    assert found_transaction == expected_transaction
 
 
-def test_returns_none_when_finding_nonexistent_transaction(test_db_path):
-    load_test_database(test_db_path)
+@patch("database_connection.Database.find")
+def test_returns_none_when_finding_nonexistent_transaction(db_find_mock):
+    db_find_mock.return_value = []
     nonexistent_transaction_id = 999
 
     transaction_entry = Transaction.find(nonexistent_transaction_id)
 
+    db_find_mock.assert_called_with(nonexistent_transaction_id)
     assert transaction_entry is None
 
 
-def test_inserting_transaction_into_database(new_transaction_data, test_db_path):
-    load_test_database(test_db_path)
+@patch("database_connection.Database.insert")
+def test_inserting_transaction_into_database(db_insert_mock, new_transaction_data):
+    expected_transaction_id = 10
+    db_insert_mock.return_value = expected_transaction_id
 
     transaction_id = Transaction.insert(new_transaction_data)
 
-    transaction = Transaction.find(transaction_id)
-    assert transaction.get_data() == new_transaction_data
+    assert transaction_id == expected_transaction_id
 
 
-def test_update_existing_transaction(insert_data_list, new_transaction_data, test_db_path):
-    load_test_database(test_db_path)
-    populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
+@patch("database_connection.Database.update")
+def test_update_existing_transaction(db_update_mock, new_transaction_data):
     transaction_to_update_id = 3
+    db_update_mock.return_value = transaction_to_update_id
+    transaction_to_update = Transaction(primary_key=transaction_to_update_id, date="2018-12-12", category="Testing",
+                                        payment_method="Credit Card", total_expense=99.99,
+                                        description="This is only a test")
+    expected_query_data = list(new_transaction_data.values()) + [transaction_to_update_id]
 
-    transaction_to_update = Transaction.find(transaction_to_update_id)
-    transaction_to_update.update(new_transaction_data)
-    updated_transaction = Transaction.find(transaction_to_update_id)
+    updated_transaction_id = transaction_to_update.update(new_transaction_data)
 
-    assert updated_transaction.get_data() == new_transaction_data
-    assert transaction_to_update == updated_transaction
+    db_update_mock.assert_called_with(expected_query_data)
+    assert updated_transaction_id == transaction_to_update_id
+    assert transaction_to_update.get_data() == new_transaction_data
 
 
-def test_delete_existing_transaction(insert_data_list, test_db_path):
-    load_test_database(test_db_path)
-    populate_database_transaction_table_with_entries(test_db_path, insert_data_list)
+@patch("database_connection.Database.delete")
+def test_delete_existing_transaction(db_delete_mock):
     delete_id = 3
+    db_delete_mock.return_value = True
 
     delete_success = Transaction.delete(delete_id)
-    search_result = Transaction.find(delete_id)
 
     assert delete_success is True
-    assert search_result is None

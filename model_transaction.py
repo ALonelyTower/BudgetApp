@@ -1,6 +1,7 @@
 from database_connection import DatabaseConnection
 import settings
 import sql_scripts
+from database_connection import Database
 
 
 class Transaction:
@@ -22,11 +23,9 @@ class Transaction:
         inserted_data = (insert_data['date'], insert_data['category'], insert_data['payment_method'],
                          insert_data['total_expense'], insert_data['description'])
 
-        with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.insert_transaction_query, inserted_data)
-            inserted_transaction_id = cursor.lastrowid
+        new_transaction_id = Database.insert(inserted_data)
 
-        return inserted_transaction_id
+        return new_transaction_id
 
     def update(self, update_data):
         # TODO:  Figure out a better way to update instance variables, and output sql statement for update
@@ -37,12 +36,9 @@ class Transaction:
         self._total_expense = update_data['total_expense']
         self._description = update_data['description']
 
-        update_sql_data = self.get_list() + [self._primary_key,]
+        update_sql_data = self.get_list_of_values() + [self._primary_key, ]
 
-        with DatabaseConnection(type(self)._database_path) as cursor:
-            cursor.execute(sql_scripts.update_transaction_query, update_sql_data)
-
-            updated_transaction_id = cursor.lastrowid
+        updated_transaction_id = Database.update(update_sql_data)
 
         return updated_transaction_id
 
@@ -50,10 +46,7 @@ class Transaction:
     def delete(cls, delete_id):
         # TODO: Look into scope issues inside and outside of context managers.
         # TODO: Find out what happens when it tries to delete something that doesn't exist
-        with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.delete_transaction_query, (delete_id,))
-
-        return True
+        return Database.delete(delete_id)
 
     @classmethod
     def find(cls, transaction_id):
@@ -62,22 +55,16 @@ class Transaction:
         if transaction_id is None:
             raise TypeError(f"Invalid Transaction Id Given: {transaction_id}")
 
-        with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.find_transaction_by_id_query, (transaction_id,))
-            row = cursor.fetchone()
-            if row:
-                transaction_record = Transaction(primary_key=row[0], date=row[1], category=row[2],
-                                                 payment_method=row[3], total_expense=row[4], description=row[5])
+        row = Database.find(transaction_id)
+        if row:
+            transaction_record = Transaction(primary_key=row[0], date=row[1], category=row[2],
+                                             payment_method=row[3], total_expense=row[4], description=row[5])
 
         return transaction_record
 
     @classmethod
     def find_all(cls):
-        with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.find_all_transactions)
-            rows = cursor.fetchall()
-
-        return rows
+        return Database.find_all()
 
     def get_data(self):
         return {
@@ -88,7 +75,7 @@ class Transaction:
             "description": self._description,
         }
 
-    def get_list(self):
+    def get_list_of_values(self):
         return [
             self._date,
             self._category,
