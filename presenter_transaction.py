@@ -6,7 +6,7 @@ class TransactionPresenter:
     def __init__(self):
         self._subscribers = []
 
-    def create_new_transaction(self, event):
+    def create_new_transaction(self):
         # Look into Interactor to remove requirement for event parameter
         with TransactionView() as trans_v:
             if trans_v.is_user_adding_or_changing_transaction():
@@ -14,7 +14,7 @@ class TransactionPresenter:
                 Transaction.insert(transaction_data)
                 self._update_subscriber()
 
-    def edit_transaction(self, event, transaction_id):
+    def edit_transaction(self, transaction_id):
         record = Transaction.find(transaction_id)
         with TransactionView() as trans_v:
             trans_v.set_form_values(record.get_data())

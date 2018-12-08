@@ -14,6 +14,14 @@ def new_transaction_data():
     }
 
 
+@pytest.fixture()
+def generate_transaction():
+    num_of_transactions = 5
+    return (Transaction(primary_key=count, date=f"{count}-{count}-{count}", category=f"{count} category",
+            payment_method=f"{count} payment method", total_expense=float(count),
+            description=f"{count} description") for count in range(num_of_transactions))
+
+
 @patch("database_connection.Database.find")
 def test_find_existing_transaction_with_id(db_find_mock):
     transaction_id = 3
@@ -74,3 +82,14 @@ def test_delete_existing_transaction(db_delete_mock):
     delete_success = Transaction.delete(delete_id)
 
     assert delete_success is True
+
+
+@patch("database_connection.Database.find_all")
+def test_find_all_transactions(db_find_all_mock, generate_transaction):
+    list_of_transaction = list(generate_transaction)
+    db_find_all_mock.return_value = list_of_transaction
+
+    row_list = Transaction.find_all()
+
+    assert list_of_transaction == row_list
+

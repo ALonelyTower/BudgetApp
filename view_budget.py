@@ -99,14 +99,15 @@ class BudgetView(wx.Frame):
         # TODO: Refactor for readability
         self._transaction_list_view.DeleteAllItems()
         for index, trans in enumerate(transaction_list):
-            list_item = self._create_list_item(index, trans[0], trans[1])
+            list_item = self._create_list_item(index, trans[0], str(trans[1]))
             index = self._transaction_list_view.InsertItem(list_item)
             self._transaction_list_view.SetItem(index, 1, trans[2])
             self._transaction_list_view.SetItem(index, 2, trans[3])
             self._transaction_list_view.SetItem(index, 3, '$' + str(trans[4]))
             self._transaction_list_view.SetItem(index, 4, trans[5])
 
-    def _create_list_item(self, index, primary_key, date):
+    @staticmethod
+    def _create_list_item(index, primary_key, date):
         list_item = wx.ListItem()
         list_item.SetId(index)
         list_item.SetData(primary_key)
@@ -118,10 +119,19 @@ class BudgetView(wx.Frame):
         return self._transaction_list_view.GetItemData(list_id)
 
     def bind_add_transaction_action(self, button_action):
-        self._add_transaction_button.Bind(wx.EVT_BUTTON, button_action)
+        command = self._create_command(button_action)
+        self._add_transaction_button.Bind(wx.EVT_BUTTON, command)
 
     def bind_view_transaction_action(self, button_action):
-        self._context_menu.bind_view_menu_item(button_action)
+        command = self._create_command(button_action)
+        self._context_menu.bind_view_menu_item(command)
+
+    @staticmethod
+    def _create_command(button_action):
+        # TODO: When things get out of hand, move to a command class
+        def command(event):
+            return button_action()
+        return command
 
 
 if __name__ == '__main__':
