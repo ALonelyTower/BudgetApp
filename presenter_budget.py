@@ -13,10 +13,15 @@ class BudgetPresenter:
 
         self._budget_view.bind_add_transaction_action(self._trans_presenter.create_new_transaction)
         self._budget_view.bind_view_transaction_action(self.view_selected_transaction_item)
+        self._budget_view.bind_edit_transaction_action(self.edit_selected_transaction_item)
 
     def view_selected_transaction_item(self):
         transaction_id = self._budget_view.get_selected_transaction_id()
         self._trans_presenter.view_transaction(transaction_id=transaction_id)
+
+    def edit_selected_transaction_item(self):
+        transaction_id = self._budget_view.get_selected_transaction_id()
+        self._trans_presenter.edit_transaction(transaction_id=transaction_id)
 
     def update(self):
         self._refresh_transaction_list()
