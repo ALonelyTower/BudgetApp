@@ -28,7 +28,7 @@ def test_find_existing_transaction_with_id(db_find_mock):
     expected_transaction = Transaction(primary_key=transaction_id, date="2018-12-12", category="Testing",
                                        payment_method="Credit Card", total_expense=99.99,
                                        description="This is only a test")
-    db_find_mock.return_value = [transaction_id] + expected_transaction.get_list_of_values()
+    db_find_mock.return_value = (transaction_id,) + expected_transaction.get_tuple_of_values()
 
     found_transaction = Transaction.find(transaction_id)
 
@@ -62,16 +62,12 @@ def test_inserting_transaction_into_database(db_insert_mock, new_transaction_dat
 def test_update_existing_transaction(db_update_mock, new_transaction_data):
     transaction_to_update_id = 3
     db_update_mock.return_value = transaction_to_update_id
-    transaction_to_update = Transaction(primary_key=transaction_to_update_id, date="2018-12-12", category="Testing",
-                                        payment_method="Credit Card", total_expense=99.99,
-                                        description="This is only a test")
-    expected_query_data = list(new_transaction_data.values()) + [transaction_to_update_id]
+    expected_query_data = tuple(new_transaction_data.values()) + (transaction_to_update_id,)
 
-    updated_transaction_id = transaction_to_update.update(new_transaction_data)
+    updated_transaction_id = Transaction.update(transaction_to_update_id, new_transaction_data)
 
     db_update_mock.assert_called_with(expected_query_data)
     assert updated_transaction_id == transaction_to_update_id
-    assert transaction_to_update.get_data() == new_transaction_data
 
 
 @patch("database_connection.Database.delete")

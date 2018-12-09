@@ -27,18 +27,13 @@ class Transaction:
 
         return new_transaction_id
 
-    def update(self, update_data):
+    @classmethod
+    def update(cls, transaction_id, update_data):
         # TODO:  Figure out a better way to update instance variables, and output sql statement for update
-                # Issue might resolve itself when we encapsulate the SQL into its own class.
-        self._date = update_data['date']
-        self._category = update_data['category']
-        self._payment_method = update_data['payment_method']
-        self._total_expense = update_data['total_expense']
-        self._description = update_data['description']
+        update_data = (update_data['date'], update_data['category'], update_data['payment_method'],
+                       update_data['total_expense'], update_data['description'], transaction_id)
 
-        update_sql_data = self.get_list_of_values() + [self._primary_key, ]
-
-        updated_transaction_id = Database.update(update_sql_data)
+        updated_transaction_id = Database.update(update_data)
 
         return updated_transaction_id
 
@@ -75,14 +70,14 @@ class Transaction:
             "description": self._description,
         }
 
-    def get_list_of_values(self):
-        return [
+    def get_tuple_of_values(self):
+        return (
             self._date,
             self._category,
             self._payment_method,
             self._total_expense,
             self._description,
-        ]
+        )
 
     def _ordered_member_list(self):
         return self._date, self._category, self._payment_method, self._total_expense, self._description

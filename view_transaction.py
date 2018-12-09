@@ -79,7 +79,7 @@ class TransactionView(wx.Dialog):
                 ctrl.Enable()
             self._ctrls_enabled = True
 
-    def is_user_adding_or_changing_transaction(self):
+    def did_user_approve_transaction(self):
         # Return true if the user clicks 'OK', else nothing happens.
         return self.ShowModal() == wx.ID_OK
 
