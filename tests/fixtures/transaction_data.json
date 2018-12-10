@@ -1,51 +1,51 @@
 {
-  "1" : [
-    "2018-01-11",
-    "Grocery",
-    "Cash",
-    43.11,
-    "Ran out of whole milk, and beef stew ingredients."
-  ],
-  "2" : [
-    "2018-02-23",
-    "Utility",
-    "Chase Visa",
-    1000.32,
-    "Charter Xfinity Time Warner Cable Internet."
-  ],
-  "3" : [
-    "2018-01-11",
-    "Maintenance",
-    "Cash",
-    200.00,
-    "Leaky ceiling repairs."
-  ],
-  "4" : [
-    "2018-01-11",
-    "Entertainment",
-    "US Bank Visa",
-    12.41,
-    "Movie Ticket: Infinity War"
-  ],
-  "5" : [
-    "2018-01-11",
-    "Education",
-    "Cash",
-    2341.11,
-    "College Tuition Payment"
-  ],
-  "6" : [
-    "2018-01-11",
-    "Dine-out",
-    "American Bank Mastercard",
-    41.13,
-    "Jiro's Sushi"
-  ],
-  "7" : [
-    "2018-01-11",
-    "Grocery",
-    "ApplePay",
-    21.91,
-    "Ingredients for Beef Curry"
-  ]
+  "1" : {
+    "date" : "2017-10-21",
+    "category" : "Holiday",
+    "payment_method" : "Mastercard",
+    "total_expense" : 29.41,
+    "description" : "Halloween Candy for Trick-or-Treaters."
+  },
+  "2" : {
+    "date" : "2018-02-23",
+    "category" : "Utility",
+    "payment_method" : "Visa",
+    "total_expense" : 40.12,
+    "description" : "Charter Xfinity Time Warner Cable Internet."
+  },
+  "3" : {
+    "date" : "2018-01-11",
+    "category" : "Maintenance",
+    "payment_method" : "Cash",
+    "total_expense" : 200.00,
+    "description" : "Leaky ceiling repairs."
+  },
+  "4" : {
+    "date" : "2018-01-11",
+    "category" : "Entertainment",
+    "payment_method" : "US Bank Visa",
+   "total_expense" : 12.41,
+    "description" : "Movie Ticket: Infinity War"
+  },
+  "5" : {
+    "date" : "2018-01-11",
+    "category" : "Education",
+    "payment_method" : "Cash",
+    "total_expense" : 2341.11,
+    "description" : "College Tuition Payment"
+  },
+  "6" : {
+    "date" : "2018-01-11",
+    "category" : "Dine-out",
+    "payment_method" : "American Bank Mastercard",
+    "total_expense" : 41.13,
+    "description" : "Jiro's Sushi"
+  },
+  "7" : {
+    "date" : "2018-01-11",
+    "category" :  "Grocery",
+    "payment_method" : "ApplePay",
+    "total_expense" : 21.91,
+    "description" : "Ingredients for Beef Curry"
+ }
 }

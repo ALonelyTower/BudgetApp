@@ -1,4 +1,5 @@
 import wx
+from contextlib import contextmanager
 
 
 class TransactionView(wx.Dialog):
@@ -63,38 +64,45 @@ class TransactionView(wx.Dialog):
         self._description_textctrl.SetValue(transaction_data['description'])
 
     def display_view_form(self):
-        self.toggle_widget_controls()
-        self.ShowModal()
-        self.toggle_widget_controls()
+        with self._temporarily_disable_form():
+            self.ShowModal()
+        self._clear_form_values()
+
+    def _clear_form_values(self):
         for ctrl in self._ctrl_list:
             ctrl.Clear()
 
-    def toggle_widget_controls(self):
-        if self._ctrls_enabled:
-            for ctrl in self._ctrl_list:
-                ctrl.Disable()
-            self._ctrls_enabled = False
-        else:
-            for ctrl in self._ctrl_list:
-                ctrl.Enable()
-            self._ctrls_enabled = True
-
     def did_user_approve_transaction(self):
-        # Return true if the user clicks 'OK', else nothing happens.
         return self.ShowModal() == wx.ID_OK
 
     def did_user_confirm_deletion(self):
         result = False
-        self.toggle_widget_controls()
-        if self.ShowModal() == wx.ID_OK:
-            dlg = wx.MessageDialog(parent=self, message="Are you sure you want to delete this Transaction?",
-                                   caption="Confirm Deletion", style=wx.OK | wx.CANCEL)
-            dialog_result = dlg.ShowModal()
-            dlg.Destroy()
-            if dialog_result == wx.ID_OK:
-                result = True
-        self.toggle_widget_controls()
+
+        with self._temporarily_disable_form():
+            if self.did_user_approve_transaction():
+                result = self._ask_user_for_final_delete_confirmation()
+
         return result
+
+    @contextmanager
+    def _temporarily_disable_form(self):
+        try:
+            for ctrl in self._ctrl_list:
+                ctrl.Disable()
+            yield None
+        finally:
+            for ctrl in self._ctrl_list:
+                ctrl.Enable()
+
+    def _ask_user_for_final_delete_confirmation(self):
+        with self._delete_warning_popup() as dialog_popup:
+            user_confirmation = dialog_popup.ShowModal()
+
+        return True if user_confirmation == wx.ID_OK else False
+
+    def _delete_warning_popup(self):
+        return wx.MessageDialog(parent=self, message="Are you sure you want to delete this Transaction?",
+                                caption="Confirm Deletion", style=wx.OK | wx.CANCEL)
 
     def _add_form_title(self):
         transaction_label = wx.StaticText(self, label="Transaction")

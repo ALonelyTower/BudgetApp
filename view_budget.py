@@ -17,7 +17,7 @@ class BudgetView(wx.Frame):
         self._bind_commands_to_gui_controls()
 
     def _set_default_window_size(self):
-        self._window_size = wx.Size(1050, 240)
+        self._window_size = wx.Size(1050, 720)
         self.SetMinSize(wx.Size(self._window_size))
 
     def _init_gui_control_widgets(self):
@@ -33,15 +33,10 @@ class BudgetView(wx.Frame):
         self.SetMenuBar(self._menu_bar)
 
     def _bind_commands_to_gui_controls(self):
-        self.Bind(wx.EVT_LIST_INSERT_ITEM, self._increment_window_size, self._transaction_list_view)
         self._transaction_list_view.Bind(wx.EVT_RIGHT_DOWN, self._on_right_click)
 
     def start(self):
         self.Show()
-
-    def _increment_window_size(self, event):
-        self._window_size.IncBy(0, 12)
-        self.SetSize(self._window_size)
 
     def _create_transaction_button(self):
         bitmap_image_path = "W:\\BudgetApp\\appbar_add.png"
