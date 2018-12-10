@@ -35,7 +35,7 @@ class ContextMenu(wx.Menu):
         self.Append(self._edit_menu_item)
         self.Append(self._delete_menu_item)
 
-    def bind_edit_menu_action(self, button_action):
+    def bind_edit_menu_item(self, button_action):
         self.Bind(wx.EVT_MENU, button_action, self._edit_menu_item)
 
     def bind_view_menu_item(self, button_action):

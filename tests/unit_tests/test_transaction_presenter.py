@@ -70,3 +70,24 @@ def test_view_transaction(find_mock, view_mock):
     assert view_mock.display_view_form.called is True
 
 
+@patch("presenter_transaction.Transaction.delete")
+@patch("presenter_transaction.TransactionView")
+@patch("presenter_transaction.Transaction.find")
+def test_delete_transaction(find_mock, view_mock, delete_mock):
+    transaction_id = 7
+    raw_data = sentinel.raw_data
+    record = MagicMock(name="transaction_mock", spec=Transaction)
+    record.get_data.return_value = raw_data
+    view_mock.return_value.__enter__.return_value = view_mock
+    find_mock.return_value = record
+    subscriber = MagicMock(name="subscriber")
+
+    transaction_presenter = TransactionPresenter()
+    transaction_presenter.register_subscriber(subscriber)
+    transaction_presenter.delete_transaction(transaction_id)
+
+    assert find_mock.called is True
+    record.get_data.called is True
+    assert view_mock.set_form_values.called is True
+    assert view_mock.did_user_confirm_deletion.called is True
+    assert delete_mock.called is True

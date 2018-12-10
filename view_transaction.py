@@ -83,6 +83,19 @@ class TransactionView(wx.Dialog):
         # Return true if the user clicks 'OK', else nothing happens.
         return self.ShowModal() == wx.ID_OK
 
+    def did_user_confirm_deletion(self):
+        result = False
+        self.toggle_widget_controls()
+        if self.ShowModal() == wx.ID_OK:
+            dlg = wx.MessageDialog(parent=self, message="Are you sure you want to delete this Transaction?",
+                                   caption="Confirm Deletion", style=wx.OK | wx.CANCEL)
+            dialog_result = dlg.ShowModal()
+            dlg.Destroy()
+            if dialog_result == wx.ID_OK:
+                result = True
+        self.toggle_widget_controls()
+        return result
+
     def _add_form_title(self):
         transaction_label = wx.StaticText(self, label="Transaction")
         font = wx.Font(18, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
