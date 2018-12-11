@@ -23,16 +23,16 @@ def generate_transaction():
 
 
 @patch("models.model_transaction.Database.find")
-def test_find_existing_transaction_with_id(db_find_mock):
+def test_find_existing_transaction_with_id(find_mock):
     transaction_id = 3
     expected_transaction = Transaction(primary_key=transaction_id, date="2018-12-12", category="Testing",
                                        payment_method="Credit Card", total_expense=99.99,
                                        description="This is only a test")
-    db_find_mock.return_value = (transaction_id,) + expected_transaction.get_tuple_of_values()
+    find_mock.return_value = [transaction_id] + expected_transaction.get_list_of_values()
 
     found_transaction = Transaction.find(transaction_id)
 
-    db_find_mock.assert_called_with(transaction_id)
+    find_mock.assert_called_with(transaction_id)
     assert found_transaction is not None
     assert found_transaction == expected_transaction
 

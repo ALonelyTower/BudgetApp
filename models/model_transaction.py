@@ -1,16 +1,19 @@
 from database.database_connection import Database
+from data_descriptors import DateDescriptor
+from data_descriptors import CashDescriptor
+from data_descriptors import TextDescriptor
 
 
 class Transaction:
     # TODO: Check if cursor.lastrowid is not influenced by others also interacting with the database
 
     def __init__(self, primary_key, date, category, payment_method, total_expense, description):
-        self._primary_key = primary_key
-        self._date = date
-        self._category = category
-        self._payment_method = payment_method
-        self._total_expense = total_expense
-        self._description = description
+        self.primary_key = primary_key
+        self.date = DateDescriptor(date)
+        self.category = TextDescriptor(category)
+        self.payment_method = TextDescriptor(payment_method)
+        self.total_expense = CashDescriptor(total_expense)
+        self.description = TextDescriptor(description)
 
     @classmethod
     def insert(cls, insert_data):
@@ -57,30 +60,30 @@ class Transaction:
 
     def get_data(self):
         return {
-            "date": self._date,
-            "category": self._category,
-            "payment_method": self._payment_method,
-            "total_expense": self._total_expense,
-            "description": self._description,
+            "date": self.date,
+            "category": self.category,
+            "payment_method": self.payment_method,
+            "total_expense": self.total_expense,
+            "description": self.description,
         }
 
-    def get_tuple_of_values(self):
-        return (
-            self._date,
-            self._category,
-            self._payment_method,
-            self._total_expense,
-            self._description,
-        )
+    def get_list_of_values(self):
+        return [
+            self.date.date,
+            self.category.text,
+            self.payment_method.text,
+            self.total_expense.cash,
+            self.description.text,
+        ]
 
     def _ordered_member_list(self):
-        return self._date, self._category, self._payment_method, self._total_expense, self._description
+        return self.date, self.category, self.payment_method, self.total_expense, self.description
 
     def __eq__(self, other):
         return self.get_data() == other.get_data()
 
     def __repr__(self):
-        return f"Transaction({self._primary_key}, '{self._date}', '{self._category}', {self._payment_method}, " \
-                f"'{self._description}')"
+        return f"Transaction({self.primary_key}, '{self.date}', '{self.category}', {self.payment_method}, " \
+                f"'{self.description}')"
 
 
