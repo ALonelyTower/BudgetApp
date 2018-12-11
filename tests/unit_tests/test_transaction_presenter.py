@@ -1,15 +1,14 @@
-import pytest
 from unittest.mock import MagicMock
 from unittest.mock import patch
 from unittest.mock import sentinel
 
 
-from presenter_transaction import TransactionPresenter
-from model_transaction import Transaction
+from presenters.presenter_transaction import TransactionPresenter
+from models.model_transaction import Transaction
 
 
-@patch("presenter_transaction.Transaction.insert")
-@patch("presenter_transaction.TransactionView", autospec=True)
+@patch("presenters.presenter_transaction.Transaction.insert")
+@patch("presenters.presenter_transaction.TransactionView", autospec=True)
 def test_create_new_transaction(trans_view_mock, insert_mock):
     form_values = sentinel.form_values
     trans_view_mock.return_value.__enter__.return_value = trans_view_mock
@@ -25,8 +24,8 @@ def test_create_new_transaction(trans_view_mock, insert_mock):
     assert subscriber.update.called
 
 
-@patch("presenter_transaction.Transaction.insert")
-@patch("presenter_transaction.TransactionView", autospec=True)
+@patch("presenters.presenter_transaction.Transaction.insert")
+@patch("presenters.presenter_transaction.TransactionView", autospec=True)
 def test_do_not_create_new_transaction_if_user_cancels(view_mock, insert_mock):
     view_mock.return_value.__enter__.return_value = view_mock
     view_mock.did_user_approve_transaction.return_value = False
@@ -41,9 +40,9 @@ def test_do_not_create_new_transaction_if_user_cancels(view_mock, insert_mock):
     assert subscriber.update.called is False
 
 
-@patch("presenter_transaction.TransactionView", autospec=True)
-@patch("presenter_transaction.Transaction.update")
-@patch("presenter_transaction.Transaction.find")
+@patch("presenters.presenter_transaction.TransactionView", autospec=True)
+@patch("presenters.presenter_transaction.Transaction.update")
+@patch("presenters.presenter_transaction.Transaction.find")
 def test_edit_transaction(find_mock, update_mock, view_mock):
     transaction_id = 5
     raw_data = sentinel.raw_data
@@ -66,8 +65,8 @@ def test_edit_transaction(find_mock, update_mock, view_mock):
     assert subscriber.update.called
 
 
-@patch("presenter_transaction.TransactionView", autospec=True)
-@patch("presenter_transaction.Transaction.find")
+@patch("presenters.presenter_transaction.TransactionView", autospec=True)
+@patch("presenters.presenter_transaction.Transaction.find")
 def test_view_transaction(find_mock, view_mock):
     transaction_id = 7
     raw_data = sentinel.raw_data
@@ -86,9 +85,9 @@ def test_view_transaction(find_mock, view_mock):
     assert view_mock.display_form.called is True
 
 
-@patch("presenter_transaction.Transaction.delete")
-@patch("presenter_transaction.TransactionView", autospec=True)
-@patch("presenter_transaction.Transaction.find")
+@patch("presenters.presenter_transaction.Transaction.delete")
+@patch("presenters.presenter_transaction.TransactionView", autospec=True)
+@patch("presenters.presenter_transaction.Transaction.find")
 def test_delete_transaction(find_mock, view_mock, delete_mock):
     transaction_id = 7
     raw_data = sentinel.raw_data
@@ -109,9 +108,9 @@ def test_delete_transaction(find_mock, view_mock, delete_mock):
     assert delete_mock.called is True
 
 
-@patch("presenter_transaction.Transaction.delete")
-@patch("presenter_transaction.TransactionView", autospec=True)
-@patch("presenter_transaction.Transaction.find")
+@patch("presenters.presenter_transaction.Transaction.delete")
+@patch("presenters.presenter_transaction.TransactionView", autospec=True)
+@patch("presenters.presenter_transaction.Transaction.find")
 def test_do_not_delete_transaction_if_user_cancels(find_mock, view_mock, delete_mock):
     transaction_id = 6
     view_mock.return_value.__enter__.return_value = view_mock

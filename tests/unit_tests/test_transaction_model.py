@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from model_transaction import Transaction
+from models.model_transaction import Transaction
 
 
 @pytest.fixture()
@@ -22,7 +22,7 @@ def generate_transaction():
             description=f"{count} description") for count in range(num_of_transactions))
 
 
-@patch("database_connection.Database.find")
+@patch("models.model_transaction.Database.find")
 def test_find_existing_transaction_with_id(db_find_mock):
     transaction_id = 3
     expected_transaction = Transaction(primary_key=transaction_id, date="2018-12-12", category="Testing",
@@ -37,7 +37,7 @@ def test_find_existing_transaction_with_id(db_find_mock):
     assert found_transaction == expected_transaction
 
 
-@patch("database_connection.Database.find")
+@patch("models.model_transaction.Database.find")
 def test_returns_none_when_finding_nonexistent_transaction(db_find_mock):
     db_find_mock.return_value = []
     nonexistent_transaction_id = 999
@@ -48,7 +48,7 @@ def test_returns_none_when_finding_nonexistent_transaction(db_find_mock):
     assert transaction_entry is None
 
 
-@patch("database_connection.Database.insert")
+@patch("models.model_transaction.Database.insert")
 def test_inserting_transaction_into_database(db_insert_mock, new_transaction_data):
     expected_transaction_id = 10
     db_insert_mock.return_value = expected_transaction_id
@@ -58,7 +58,7 @@ def test_inserting_transaction_into_database(db_insert_mock, new_transaction_dat
     assert transaction_id == expected_transaction_id
 
 
-@patch("database_connection.Database.update")
+@patch("models.model_transaction.Database.update")
 def test_update_existing_transaction(db_update_mock, new_transaction_data):
     transaction_to_update_id = 3
     db_update_mock.return_value = transaction_to_update_id
@@ -70,7 +70,7 @@ def test_update_existing_transaction(db_update_mock, new_transaction_data):
     assert updated_transaction_id == transaction_to_update_id
 
 
-@patch("database_connection.Database.delete")
+@patch("models.model_transaction.Database.delete")
 def test_delete_existing_transaction(db_delete_mock):
     delete_id = 3
     db_delete_mock.return_value = True
@@ -80,7 +80,7 @@ def test_delete_existing_transaction(db_delete_mock):
     assert delete_success is True
 
 
-@patch("database_connection.Database.find_all")
+@patch("models.model_transaction.Database.find_all")
 def test_find_all_transactions(db_find_all_mock, generate_transaction):
     list_of_transaction = list(generate_transaction)
     db_find_all_mock.return_value = list_of_transaction

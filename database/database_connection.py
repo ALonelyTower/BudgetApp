@@ -1,6 +1,6 @@
 import sqlite3
 import settings
-import sql_scripts
+from database import sql_scripts
 from sqlite3 import DatabaseError
 
 

@@ -2,8 +2,8 @@ import json
 
 
 import settings
-import sql_scripts
-from database_connection import DatabaseConnection
+from database import sql_scripts
+from database.database_connection import DatabaseConnection
 
 
 with open(settings.TRANS_FIXTURE_PATH) as json_file:

@@ -1,8 +1,7 @@
 import wx
 import os
 
-
-import view_menu
+from views import view_menu
 
 
 class BudgetView(wx.Frame):

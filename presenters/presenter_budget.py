@@ -1,6 +1,6 @@
-from view_budget import BudgetView
-from presenter_transaction import TransactionPresenter
-from model_transaction import Transaction
+from views.view_budget import BudgetView
+from presenters.presenter_transaction import TransactionPresenter
+from models.model_transaction import Transaction
 
 
 class BudgetPresenter:

@@ -1,7 +1,4 @@
-from database_connection import DatabaseConnection
-import settings
-import sql_scripts
-from database_connection import Database
+from database.database_connection import Database
 
 
 class Transaction:

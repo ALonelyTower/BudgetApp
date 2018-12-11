@@ -1,5 +1,5 @@
-from model_transaction import Transaction
-from view_transaction import TransactionView
+from models.model_transaction import Transaction
+from views.view_transaction import TransactionView
 
 
 class TransactionPresenter:
