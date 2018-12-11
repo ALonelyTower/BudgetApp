@@ -28,7 +28,7 @@ class TransactionPresenter:
         with TransactionView(title="View Transaction") as trans_v:
             data_transfer_object = record.get_data()
             trans_v.set_form_values(data_transfer_object)
-            trans_v.display_view_form()
+            trans_v.display_form()
 
     def delete_transaction(self, transaction_id):
         record = Transaction.find(transaction_id)

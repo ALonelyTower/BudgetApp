@@ -6,9 +6,6 @@ from database_connection import Database
 
 class Transaction:
     # TODO: Check if cursor.lastrowid is not influenced by others also interacting with the database
-    # TODO: Eventually encapsulate SQL queries in its own class (maybe SqliteDatabaseConnection)
-    # TODO: Shift from classmethods to staticmethods.  Doesn't seem needed to pass classes.
-    _database_path = settings.DB_PATH
 
     def __init__(self, primary_key, date, category, payment_method, total_expense, description):
         self._primary_key = primary_key
@@ -39,7 +36,6 @@ class Transaction:
 
     @classmethod
     def delete(cls, delete_id):
-        # TODO: Look into scope issues inside and outside of context managers.
         # TODO: Find out what happens when it tries to delete something that doesn't exist
         return Database.delete(delete_id)
 
@@ -59,6 +55,7 @@ class Transaction:
 
     @classmethod
     def find_all(cls):
+        # TODO: Convert Rows into Transaction objects
         return Database.find_all()
 
     def get_data(self):

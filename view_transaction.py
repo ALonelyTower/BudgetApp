@@ -11,8 +11,8 @@ class TransactionView(wx.Dialog):
         super().__init__(parent, id, title, pos, size=(400, 600), style=style, name=name)
 
         self._set_flags_and_sizers()
-        self._declare_widget_ctrls()
-        self._add_ctrls_to_sizer()
+        self._declare_form_ctrls()
+        self._add_form_ctrls_to_sizer()
         self.SetSizer(self._form_sizer)
 
     def _set_flags_and_sizers(self):
@@ -21,7 +21,7 @@ class TransactionView(wx.Dialog):
         self._textctrl_flags = wx.BOTTOM | wx.LEFT | wx.RIGHT
         self._ctrls_enabled = True
 
-    def _declare_widget_ctrls(self):
+    def _declare_form_ctrls(self):
         self._date_textctrl = wx.TextCtrl(self)
         self._category_textctrl = wx.TextCtrl(self)
         self._payment_method_textctrl = wx.TextCtrl(self)
@@ -33,7 +33,7 @@ class TransactionView(wx.Dialog):
         self._ok_button = wx.Button(self, id=wx.ID_OK, label="&Ok")
         self._cancel_button = wx.Button(self, id=wx.ID_CANCEL, label="&Cancel")
 
-    def _add_ctrls_to_sizer(self):
+    def _add_form_ctrls_to_sizer(self):
         self._form_sizer = wx.BoxSizer(wx.VERTICAL)
         self._add_form_title()
         self._add_date_controls()
@@ -63,7 +63,7 @@ class TransactionView(wx.Dialog):
         self._total_expense_textctrl.SetValue(str(transaction_data['total_expense']))
         self._description_textctrl.SetValue(transaction_data['description'])
 
-    def display_view_form(self):
+    def display_form(self):
         with self._temporarily_disable_form():
             self.ShowModal()
         self._clear_form_values()
@@ -153,6 +153,6 @@ class TransactionView(wx.Dialog):
 if __name__ == '__main__':
     app = wx.App()
     view = TransactionView()
-    view.display_view_form()
+    view.display_form()
     app.MainLoop()
 
