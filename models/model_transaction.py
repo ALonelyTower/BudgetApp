@@ -1,7 +1,4 @@
 from database.database_connection import Database
-from data_descriptors import DateDescriptor
-from data_descriptors import CashDescriptor
-from data_descriptors import TextDescriptor
 
 
 class Transaction:
@@ -9,11 +6,11 @@ class Transaction:
 
     def __init__(self, primary_key, date, category, payment_method, total_expense, description):
         self.primary_key = primary_key
-        self.date = DateDescriptor(date)
-        self.category = TextDescriptor(category)
-        self.payment_method = TextDescriptor(payment_method)
-        self.total_expense = CashDescriptor(total_expense)
-        self.description = TextDescriptor(description)
+        self.date = date
+        self.category = category
+        self.payment_method = payment_method
+        self.total_expense = total_expense
+        self.description = description
 
     @classmethod
     def insert(cls, insert_data):
@@ -69,15 +66,12 @@ class Transaction:
 
     def get_list_of_values(self):
         return [
-            self.date.date,
-            self.category.text,
-            self.payment_method.text,
-            self.total_expense.cash,
-            self.description.text,
+            self.date,
+            self.category,
+            self.payment_method,
+            self.total_expense,
+            self.description,
         ]
-
-    def _ordered_member_list(self):
-        return self.date, self.category, self.payment_method, self.total_expense, self.description
 
     def __eq__(self, other):
         return self.get_data() == other.get_data()

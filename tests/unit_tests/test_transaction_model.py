@@ -28,7 +28,8 @@ def test_find_existing_transaction_with_id(find_mock):
     expected_transaction = Transaction(primary_key=transaction_id, date="2018-12-12", category="Testing",
                                        payment_method="Credit Card", total_expense=99.99,
                                        description="This is only a test")
-    find_mock.return_value = [transaction_id] + expected_transaction.get_list_of_values()
+    row = [transaction_id] + expected_transaction.get_list_of_values()
+    find_mock.return_value = row
 
     found_transaction = Transaction.find(transaction_id)
 
