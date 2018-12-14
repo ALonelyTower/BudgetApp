@@ -11,10 +11,13 @@ class BudgetPresenter:
         self._trans_presenter = trans_presenter
         self._trans_presenter.register_subscriber(self)
 
-        self._budget_view.bind_add_transaction_action(self._trans_presenter.create_new_transaction)
+        self._budget_view.bind_add_transaction_action(self.create_new_transaction)
         self._budget_view.bind_view_transaction_action(self.view_selected_transaction_item)
         self._budget_view.bind_edit_transaction_action(self.edit_selected_transaction_item)
         self._budget_view.bind_delete_transaction_action(self.delete_selected_transaction_item)
+
+    def create_new_transaction(self):
+        self._trans_presenter.create_new_transaction()
 
     def view_selected_transaction_item(self):
         transaction_id = self._budget_view.get_selected_transaction_id()
@@ -39,11 +42,16 @@ class BudgetPresenter:
 if __name__ == '__main__':
     import wx
     app = wx.App(False)
-    budget_v = BudgetView()
-    trans_p = TransactionPresenter()
-    budget_presenter = BudgetPresenter(budget_v, trans_p)
-    budget_v.start()
-    app.MainLoop()
+    try:
+        budget_v = BudgetView()
+        trans_p = TransactionPresenter()
+        budget_presenter = BudgetPresenter(budget_v, trans_p)
+        budget_v.start()
+        app.MainLoop()
+    except Exception as ae:
+        print(f"Error occurred in MAIN(): {ae}")
+    finally:
+        app.ExitMainLoop()
 
 # Create New Transaction Button
 # Create Edit Transaction Button

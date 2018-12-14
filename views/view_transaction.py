@@ -1,5 +1,6 @@
 import wx
 from contextlib import contextmanager
+from views.data_validators import date_form_validator
 
 
 class TransactionView(wx.Dialog):
@@ -10,62 +11,83 @@ class TransactionView(wx.Dialog):
                  style=wx.DEFAULT_DIALOG_STYLE, name=wx.DialogNameStr):
         super().__init__(parent, id, title, pos, size=(400, 600), style=style, name=name)
 
-        self._set_flags_and_sizers()
+        self._form_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        self._set_flags_and_values()
         self._declare_form_ctrls()
-        self._add_form_ctrls_to_sizer()
+        self._add_form_sections()
+        self._install_form_validator()
+
         self.SetSizer(self._form_sizer)
 
-    def _set_flags_and_sizers(self):
+    def _set_flags_and_values(self):
         self._formitem_border = 5
         self._label_flags = wx.TOP | wx.LEFT | wx.RIGHT
         self._textctrl_flags = wx.BOTTOM | wx.LEFT | wx.RIGHT
-        self._ctrls_enabled = True
+        self._date_delimiter = '-'
 
     def _declare_form_ctrls(self):
-        self._date_textctrl = wx.TextCtrl(self)
-        self._category_textctrl = wx.TextCtrl(self)
-        self._payment_method_textctrl = wx.TextCtrl(self)
-        self._total_expense_textctrl = wx.TextCtrl(self)
-        self._description_textctrl = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
+        self._date_year_textctrl = wx.TextCtrl(self, name="date_year")
+        self._date_month_textctrl = wx.TextCtrl(self, name="date_month")
+        self._date_day_textctrl = wx.TextCtrl(self, name="date_day")
+        self._category_textctrl = wx.TextCtrl(self, name="category")
+        self._payment_method_textctrl = wx.TextCtrl(self, name="payment_method")
+        self._total_expense_textctrl = wx.TextCtrl(self, name="total_expense")
+        self._description_textctrl = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL, name="description")
 
-        self._ctrl_list = [self._date_textctrl, self._category_textctrl, self._payment_method_textctrl,
-                           self._total_expense_textctrl, self._description_textctrl]
-        self._ok_button = wx.Button(self, id=wx.ID_OK, label="&Ok")
-        self._cancel_button = wx.Button(self, id=wx.ID_CANCEL, label="&Cancel")
+        self._ctrl_list = [self._date_year_textctrl, self._date_month_textctrl, self._date_day_textctrl,
+                           self._category_textctrl, self._payment_method_textctrl, self._total_expense_textctrl,
+                           self._description_textctrl]
+        self._ok_button = wx.Button(self, id=wx.ID_OK, label="&Ok", name="ok_button")
+        self._cancel_button = wx.Button(self, id=wx.ID_CANCEL, label="&Cancel", name="cancel_button")
 
-    def _add_form_ctrls_to_sizer(self):
-        self._form_sizer = wx.BoxSizer(wx.VERTICAL)
-        self._add_form_title()
-        self._add_date_controls()
-        self._add_category_controls()
-        self._add_payment_method_controls()
-        self._add_expense_controls()
-        self._add_description_controls()
-        self._add_ok_cancel_button_controls()
+    def _add_form_sections(self):
+        self._add_title_section()
+        self._add_date_section()
+        self._add_category_section()
+        self._add_payment_method_sections()
+        self._add_expense_section()
+        self._add_description_section()
+        self._add_ok_cancel_button_section()
 
-    def bind_ok_button(self, button_action):
-        self._ok_button.Bind(wx.EVT_BUTTON, button_action)
+    def _install_form_validator(self):
+        self._date_year_textctrl.SetValidator(date_form_validator.DateFormValidator())
+        self._date_month_textctrl.SetValidator(date_form_validator.DateFormValidator())
+        self._date_day_textctrl.SetValidator(date_form_validator.DateFormValidator())
 
     def get_form_values(self):
         return {
-            'primary_key': None,
-            'date': self._date_textctrl.GetValue(),
+            'date': self._get_date_value(),
             'category': self._category_textctrl.GetValue(),
             'payment_method': self._payment_method_textctrl.GetValue(),
             'total_expense': self._total_expense_textctrl.GetValue(),
             'description': self._description_textctrl.GetValue()
         }
 
+    def _get_date_value(self):
+        year = self._date_year_textctrl.GetValue()
+        month = self._date_month_textctrl.GetValue()
+        day = self._date_day_textctrl.GetValue()
+        delimeter = self._date_delimiter
+        return f"{year}{delimeter}{month}{delimeter}{day}"
+
     def set_form_values(self, transaction_data):
-        self._date_textctrl.SetValue(transaction_data['date'])
+        year, month, day = self._split_date(transaction_data['date'])
+        self._date_year_textctrl.SetValue(year)
+        self._date_month_textctrl.SetValue(month)
+        self._date_day_textctrl.SetValue(day)
         self._category_textctrl.SetValue(transaction_data['category'])
         self._payment_method_textctrl.SetValue(transaction_data['payment_method'])
         self._total_expense_textctrl.SetValue(str(transaction_data['total_expense']))
         self._description_textctrl.SetValue(transaction_data['description'])
 
+    def _split_date(self, date_string):
+        return date_string.split(self._date_delimiter)
+
     def display_form(self):
         with self._temporarily_disable_form():
             self.ShowModal()
+            self.Destroy()
         self._clear_form_values()
 
     def _clear_form_values(self):
@@ -104,7 +126,7 @@ class TransactionView(wx.Dialog):
         return wx.MessageDialog(parent=self, message="Are you sure you want to delete this Transaction?",
                                 caption="Confirm Deletion", style=wx.OK | wx.CANCEL)
 
-    def _add_form_title(self):
+    def _add_title_section(self):
         transaction_label = wx.StaticText(self, label="Transaction")
         font = wx.Font(18, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         transaction_label.SetFont(font)
@@ -113,32 +135,48 @@ class TransactionView(wx.Dialog):
         static_line = wx.StaticLine(self, style=wx.LI_HORIZONTAL)
         self._form_sizer.Add(static_line, flag=wx.ALL | wx.EXPAND, border=self._formitem_border)
 
-    def _add_date_controls(self):
-        date_label = wx.StaticText(self, label="YYYY/MM/DD")
-        self._form_sizer.Add(date_label, flag=self._label_flags, border=self._formitem_border)
-        self._form_sizer.Add(self._date_textctrl, flag=self._textctrl_flags, border=self._formitem_border)
+    def _add_date_section(self):
+        date_sizer = wx.FlexGridSizer(rows=2, cols=3, vgap=0, hgap=3)
 
-    def _add_category_controls(self):
+        date_year_label = wx.StaticText(self, label="Year (YYYY)")
+        date_month_label = wx.StaticText(self, label="Month (MM)")
+        date_day_label = wx.StaticText(self, label="Day (DD)")
+
+        # Items are added to the widget from left to right, top to bottom.  Order matters.
+        date_sizer.AddMany(
+            [
+                (date_year_label, 0, wx.EXPAND),
+                (date_month_label, 0, wx.EXPAND),
+                (date_day_label, 0, wx.EXPAND),
+                (self._date_year_textctrl, 0.50),
+                (self._date_month_textctrl, 0.25),
+                (self._date_day_textctrl, 0.25),
+            ]
+        )
+
+        self._form_sizer.Add(date_sizer, flag=self._textctrl_flags, border=self._formitem_border)
+
+    def _add_category_section(self):
         category_label = wx.StaticText(self, label="Category")
         self._form_sizer.Add(category_label, flag=self._label_flags, border=self._formitem_border)
         self._form_sizer.Add(self._category_textctrl, flag=wx.EXPAND | self._textctrl_flags, border=self._formitem_border)
 
-    def _add_payment_method_controls(self):
+    def _add_payment_method_sections(self):
         payment_method_label = wx.StaticText(self, label="Payment Method")
         self._form_sizer.Add(payment_method_label, flag=self._label_flags, border=self._formitem_border)
         self._form_sizer.Add(self._payment_method_textctrl, flag=wx.EXPAND | self._textctrl_flags, border=self._formitem_border)
 
-    def _add_expense_controls(self):
+    def _add_expense_section(self):
         total_expense_label = wx.StaticText(self, label="Total Expense")
         self._form_sizer.Add(total_expense_label, flag=self._label_flags, border=self._formitem_border)
         self._form_sizer.Add(self._total_expense_textctrl, flag=self._textctrl_flags, border=self._formitem_border)
 
-    def _add_description_controls(self):
+    def _add_description_section(self):
         description_label = wx.StaticText(self, label="Description")
         self._form_sizer.Add(description_label, flag=wx.TOP | wx.LEFT | wx.RIGHT, border=self._formitem_border)
         self._form_sizer.Add(self._description_textctrl, proportion=1, flag=wx.EXPAND | self._textctrl_flags, border=self._formitem_border)
 
-    def _add_ok_cancel_button_controls(self):
+    def _add_ok_cancel_button_section(self):
         """
         Still can't figure out how to properly align the buttons.  The difficulty is the opaque behavior of
         manipulating two sizers within one another.

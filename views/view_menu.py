@@ -36,13 +36,16 @@ class ContextMenu(wx.Menu):
         self.Append(self._delete_menu_item)
 
     def bind_edit_menu_item(self, button_action):
-        self.Bind(wx.EVT_MENU, button_action, self._edit_menu_item)
+        self._bind_action(button_action, self._edit_menu_item)
 
     def bind_view_menu_item(self, button_action):
-        self.Bind(wx.EVT_MENU, button_action, self._view_menu_item)
+        self._bind_action(button_action, self._view_menu_item)
 
     def bind_delete_menu_item(self, button_action):
-        self.Bind(wx.EVT_MENU, button_action, self._delete_menu_item)
+        self._bind_action(button_action, self._delete_menu_item)
+
+    def _bind_action(self, button_action, menu_item):
+        self.Bind(wx.EVT_MENU, button_action, menu_item)
 
 
 if __name__ == '__main__':
