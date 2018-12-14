@@ -15,7 +15,7 @@ class DateFormValidator(wx.Validator):
     def Clone(self):
         return DateFormValidator()
 
-    def Validate(self, window):
+    def Validate(self, parent):
         text_ctrl = self.GetWindow()
         value = text_ctrl.GetValue()
         date_typename = text_ctrl.GetName()
@@ -26,18 +26,18 @@ class DateFormValidator(wx.Validator):
         else:
             num_value = int(value)
             if date_typename == 'date_year':
-                self._validate(num_value, self._upper_year_limit, self._lower_year_limit)
+                self._validate_date(num_value, self._upper_year_limit, self._lower_year_limit)
             elif date_typename == 'date_month':
-                self._validate(num_value, self._upper_month_limit, self._lower_month_limit)
+                self._validate_date(num_value, self._upper_month_limit, self._lower_month_limit)
             elif date_typename == 'date_day':
-                self._validate(num_value, self._upper_day_limit, self._lower_day_limit)
+                self._validate_date(num_value, self._upper_day_limit, self._lower_day_limit)
             else:
                 raise ValueError("Attempted to Validate unknown Date Type.")
 
         self._flag_ctrl_as_valid()
         return True
 
-    def _validate(self, value, upper_limit, lower_limit):
+    def _validate_date(self, value, upper_limit, lower_limit):
         if value < lower_limit or value > upper_limit:
             self._flag_ctrl_as_invalid()
             return False

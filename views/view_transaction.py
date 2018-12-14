@@ -1,6 +1,7 @@
 import wx
 from contextlib import contextmanager
-from views.data_validators import date_form_validator
+from views.data_validators import date_form_validator as dfv
+from views.data_validators import not_empty_validator as nev
 
 
 class TransactionView(wx.Dialog):
@@ -51,9 +52,13 @@ class TransactionView(wx.Dialog):
         self._add_ok_cancel_button_section()
 
     def _install_form_validator(self):
-        self._date_year_textctrl.SetValidator(date_form_validator.DateFormValidator())
-        self._date_month_textctrl.SetValidator(date_form_validator.DateFormValidator())
-        self._date_day_textctrl.SetValidator(date_form_validator.DateFormValidator())
+        self._date_year_textctrl.SetValidator(dfv.DateFormValidator())
+        self._date_month_textctrl.SetValidator(dfv.DateFormValidator())
+        self._date_day_textctrl.SetValidator(dfv.DateFormValidator())
+        self._category_textctrl.SetValidator(nev.NotEmptyValidator())
+        self._payment_method_textctrl.SetValidator(nev.NotEmptyValidator())
+        self._total_expense_textctrl.SetValidator(nev.NotEmptyValidator())
+        self._description_textctrl.SetValidator(nev.NotEmptyValidator())
 
     def get_form_values(self):
         return {
