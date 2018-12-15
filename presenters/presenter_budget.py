@@ -42,18 +42,8 @@ class BudgetPresenter:
 if __name__ == '__main__':
     import wx
     app = wx.App(False)
-    try:
-        budget_v = BudgetView()
-        trans_p = TransactionPresenter()
-        budget_presenter = BudgetPresenter(budget_v, trans_p)
-        budget_v.start()
-        app.MainLoop()
-    except Exception as ae:
-        print(f"Error occurred in MAIN(): {ae}")
-    finally:
-        app.ExitMainLoop()
-
-# Create New Transaction Button
-# Create Edit Transaction Button
-# Create ListView Transaction Button
-# Create Delete Transaction Button
+    budget_v = BudgetView()
+    trans_p = TransactionPresenter()
+    budget_presenter = BudgetPresenter(budget_v, trans_p)
+    budget_v.start()
+    app.MainLoop()

@@ -1,10 +1,12 @@
-import wx
 import datetime
 
 
-class DateFormValidator(wx.Validator):
+from . import base_validator
+
+
+class DateFormValidator(base_validator.BaseValidator):
     def __init__(self):
-        wx.Validator.__init__(self)
+        super().__init__()
         self._upper_year_limit = datetime.datetime.now().year
         self._lower_year_limit = 1900
         self._upper_month_limit = 12
@@ -41,20 +43,3 @@ class DateFormValidator(wx.Validator):
         if value < lower_limit or value > upper_limit:
             self._flag_ctrl_as_invalid()
             return False
-
-    def _flag_ctrl_as_invalid(self):
-        text_ctrl = self.GetWindow()
-        text_ctrl.SetBackgroundColour(wx.Colour(250, 128, 114))
-        text_ctrl.SetFocus()
-        text_ctrl.Refresh()
-
-    def _flag_ctrl_as_valid(self):
-        text_ctrl = self.GetWindow()
-        text_ctrl.SetBackgroundColour(wx.Colour(wx.WHITE))
-        text_ctrl.Refresh()
-
-    def TransferToWindow(self):
-        return True
-
-    def TransferFromWindow(self):
-        return True
