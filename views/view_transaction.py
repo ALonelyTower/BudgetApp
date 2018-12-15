@@ -31,7 +31,7 @@ class TransactionView(wx.Dialog):
         self._date_year_textctrl = wx.TextCtrl(self, name="date_year")
         self._date_month_textctrl = wx.TextCtrl(self, name="date_month")
         self._date_day_textctrl = wx.TextCtrl(self, name="date_day")
-        self._category_textctrl = wx.TextCtrl(self, name="category")
+        self._category_textctrl = wx.ComboBox(parent=self, name="category", style=wx.CB_READONLY)
         self._payment_method_textctrl = wx.TextCtrl(self, name="payment_method")
         self._total_expense_textctrl = wx.TextCtrl(self, name="total_expense")
         self._description_textctrl = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL, name="description")

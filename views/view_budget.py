@@ -93,9 +93,9 @@ class BudgetView(wx.Frame):
         # TODO: Refactor for readability
         self._transaction_list_view.DeleteAllItems()
         for index, trans in enumerate(transaction_list):
-            list_item = self._create_list_item(index, trans[0], str(trans[1]))
+            list_item = self._create_list_item(index, trans[0], trans[1])
             index = self._transaction_list_view.InsertItem(list_item)
-            self._transaction_list_view.SetItem(index, 1, trans[2])
+            self._transaction_list_view.SetItem(index, 1, str(trans[2]))
             self._transaction_list_view.SetItem(index, 2, trans[3])
             self._transaction_list_view.SetItem(index, 3, '$' + str(trans[4]))
             self._transaction_list_view.SetItem(index, 4, trans[5])
@@ -134,19 +134,3 @@ class BudgetView(wx.Frame):
         def command(event):
             return button_action()
         return command
-
-
-if __name__ == '__main__':
-    app = wx.App(False)
-    budget = BudgetView()
-    budget.set_transaction_list_ctrl([
-        (1, "2018-01-11", "Grocery", "Cash", 43.11, "Ran out of whole milk, and beef stew ingredients."),
-        (2, "2018-02-23", "Utility", "Chase Visa", 1000.32, "Charter Xfinity Time Warner Cable Internet."),
-        (3, "2018-01-11", "Maintenance", "Cash", 200.00, "Leaky ceiling repairs."),
-        (4, "2018-01-11", "Entertainment", "US Bank Visa", 12.41, "Movie Ticket: Infinity War"),
-        (5, "2018-01-11", "Education", "Cash", 2341.11, "College Tuition Payment"),
-        (6, "2018-01-11", "Dine-out", "American Bank Mastercard", 41.13, "Jiro's Sushi"),
-        (7, "2018-01-11", "Grocery", "ApplePay", 21.91, "Ingredients for Beef Curry"),
-    ])
-    budget.start()
-    app.MainLoop()

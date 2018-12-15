@@ -1,49 +1,49 @@
 {
   "1" : {
     "date" : "2017-10-21",
-    "category" : "Holiday",
+    "category" : 12,
     "payment_method" : "Mastercard",
     "total_expense" : 29.41,
     "description" : "Halloween Candy for Trick-or-Treaters."
   },
   "2" : {
     "date" : "2018-02-23",
-    "category" : "Utility",
+    "category" : 7,
     "payment_method" : "Visa",
     "total_expense" : 40.12,
     "description" : "Charter Xfinity Time Warner Cable Internet."
   },
   "3" : {
     "date" : "2018-01-11",
-    "category" : "Maintenance",
+    "category" : 11,
     "payment_method" : "Cash",
     "total_expense" : 200.00,
     "description" : "Leaky ceiling repairs."
   },
   "4" : {
     "date" : "2018-01-11",
-    "category" : "Entertainment",
+    "category" : 5,
     "payment_method" : "US Bank Visa",
    "total_expense" : 12.41,
     "description" : "Movie Ticket: Infinity War"
   },
   "5" : {
     "date" : "2018-01-11",
-    "category" : "Education",
+    "category" : 10,
     "payment_method" : "Cash",
     "total_expense" : 2341.11,
     "description" : "College Tuition Payment"
   },
   "6" : {
     "date" : "2018-01-11",
-    "category" : "Dine-out",
+    "category" : 4,
     "payment_method" : "American Bank Mastercard",
     "total_expense" : 41.13,
     "description" : "Jiro's Sushi"
   },
   "7" : {
     "date" : "2018-01-11",
-    "category" :  "Grocery",
+    "category" :  2,
     "payment_method" : "ApplePay",
     "total_expense" : 21.91,
     "description" : "Ingredients for Beef Curry"
