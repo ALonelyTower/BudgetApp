@@ -34,29 +34,31 @@ class Database:
         pass
 
     @classmethod
-    def insert(cls, inserted_data):
+    def insert(cls, table_name, column_names, table_values):
+        query_statement = Database.create_insert_query(table_name, column_names)
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.insert_transaction_query, inserted_data)
+            cursor.execute(query_statement, table_values)
             return cursor.lastrowid
 
     @classmethod
-    def update(cls, updated_data):
+    def update(cls, table_name, column_names, updated_values, primary_key_column_name):
+        query_statement = Database.create_update_query(table_name, column_names, primary_key_column_name)
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.update_transaction_query, updated_data)
-
-            return cursor.lastrowid
-
-    @classmethod
-    def delete(cls, delete_id):
-        # TODO: Figure out what is returned when deleting a row
-        with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.delete_transaction_query, (delete_id,))
+            cursor.execute(query_statement, updated_values)
             return True
 
     @classmethod
-    def find(cls, transaction_id):
+    def delete(cls, delete_id, table_name, key_column_name):
+        query_statement = Database.create_delete_query(table_name, key_column_name)
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(sql_scripts.find_transaction_by_id_query, (transaction_id,))
+            cursor.execute(query_statement, (delete_id,))
+            return True
+
+    @classmethod
+    def find(cls, table_name, key_column_name, record_id):
+        query_statement = Database.create_find_query(table_name, key_column_name)
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute(query_statement, (record_id,))
             return cursor.fetchone()
 
     @classmethod
@@ -65,3 +67,33 @@ class Database:
             cursor.execute(sql_scripts.find_all_transactions)
             return cursor.fetchall()
 
+    @classmethod
+    def create_insert_query(cls, table_name, column_names):
+        """
+        :param table_name: Name of database table that's being inserted into
+        :param column_names: A tuple of the table's column names
+        :return: A valid sql query for inserting a record into the specified database table
+        """
+        num_of_columns = len(column_names)
+        param_list = ['?'] * num_of_columns
+
+        column_string = ", ".join(column_names)
+        param_string = ", ".join(param_list)
+
+        return sql_scripts.insert_query.format(table_name=table_name, column_names=column_string, parameters=param_string)
+
+    @classmethod
+    def create_find_query(cls, table_name, key_column_name):
+        return sql_scripts.find_query.format(table_name=table_name, key_column_name=key_column_name)
+
+    @classmethod
+    def create_update_query(cls, table_name, column_names, primary_key_column_name):
+        column_pair_template = "{table_column} = ?"
+        column_pairs = [column_pair_template.format(table_column=column_name) for column_name in column_names]
+        updated_columns = ", ".join(column_pairs)
+        return sql_scripts.update_query.format(table_name=table_name, columns_to_update=updated_columns,
+                                               primary_key_column_name=primary_key_column_name)
+
+    @classmethod
+    def create_delete_query(cls, table_name, key_column_name):
+        return sql_scripts.delete_query.format(table_name=table_name, key_column_name=key_column_name)

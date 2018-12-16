@@ -16,6 +16,14 @@ create_categories_table_query = """ CREATE TABLE IF NOT EXISTS categories (
                             cate_name CHAR(50) NOT NULL
                           ); """
 
+insert_query = "INSERT INTO {table_name} ({column_names}) VALUES ({parameters})"
+
+update_query = "UPDATE {table_name} SET {columns_to_update} WHERE {primary_key_column_name} = ?"
+
+find_query = "SELECT * FROM {table_name} WHERE {key_column_name} = ?"
+
+delete_query = "DELETE FROM {table_name} WHERE {key_column_name} = ?"
+
 insert_transaction_query = """INSERT INTO transactions (trans_date, category_fk_id, trans_payment_method,
                                 trans_total_expense,trans_description) VALUES(?,?,?,?,?);"""
 
@@ -29,7 +37,7 @@ update_transaction_query = """UPDATE transactions
 
 delete_transaction_query = """DELETE FROM transactions WHERE trans_id = ?"""
 
-find_transaction_by_id_query = "SELECT * FROM transactions WHERE trans_id = (?)"
+find_transaction_by_id_query = "SELECT * FROM transactions WHERE trans_id = ?"
 
 find_all_transactions = """SELECT trans_id, trans_date, cate_name, trans_payment_method, trans_total_expense, trans_description
                            FROM transactions

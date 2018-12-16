@@ -24,6 +24,8 @@ def generate_transaction():
 
 @patch("models.model_transaction.Database.find")
 def test_find_existing_transaction_with_id(find_mock):
+    table_name = 'transactions'
+    key_column_name = 'trans_id'
     transaction_id = 3
     expected_transaction = Transaction(primary_key=transaction_id, date="2018-12-12", category="Testing",
                                        payment_method="Credit Card", total_expense=99.99,
@@ -33,7 +35,7 @@ def test_find_existing_transaction_with_id(find_mock):
 
     found_transaction = Transaction.find(transaction_id)
 
-    find_mock.assert_called_with(transaction_id)
+    find_mock.assert_called_with(table_name, key_column_name, transaction_id)
     assert found_transaction is not None
     assert found_transaction == expected_transaction
 
@@ -42,10 +44,12 @@ def test_find_existing_transaction_with_id(find_mock):
 def test_returns_none_when_finding_nonexistent_transaction(db_find_mock):
     db_find_mock.return_value = []
     nonexistent_transaction_id = 999
+    table_name = "transactions"
+    key_column_name = "trans_id"
 
     transaction_entry = Transaction.find(nonexistent_transaction_id)
 
-    db_find_mock.assert_called_with(nonexistent_transaction_id)
+    db_find_mock.assert_called_with(table_name, key_column_name, nonexistent_transaction_id)
     assert transaction_entry is None
 
 
