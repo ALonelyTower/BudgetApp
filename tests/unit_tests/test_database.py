@@ -23,10 +23,10 @@ def test_find_query_construction():
 
 def test_insert_query_construction():
     table_name = "transactions"
-    table_columns = ["trans_id", "trans_date", "category_fk_id", "trans_payment_method", "trans_total_expense",
+    table_columns = ["trans_id", "trans_date", "category_fk", "trans_payment_method", "trans_total_expense",
                      "trans_description"]
 
-    expected_query = "INSERT INTO transactions (trans_id, trans_date, category_fk_id, trans_payment_method, " \
+    expected_query = "INSERT INTO transactions (trans_id, trans_date, category_fk, trans_payment_method, " \
                      "trans_total_expense, trans_description) VALUES (?, ?, ?, ?, ?, ?)"
 
     actual_query = Database.create_insert_query(table_name, table_columns)
@@ -36,11 +36,11 @@ def test_insert_query_construction():
 
 def test_update_query_construction():
     table_name = "transactions"
-    table_columns = ["trans_date", "category_fk_id", "trans_payment_method", "trans_total_expense",
+    table_columns = ["trans_date", "category_fk", "trans_payment_method", "trans_total_expense",
                      "trans_description"]
     column_id_name = "trans_id"
 
-    expected_query = "UPDATE transactions SET trans_date = ?, category_fk_id = ?, trans_payment_method = ?, " \
+    expected_query = "UPDATE transactions SET trans_date = ?, category_fk = ?, trans_payment_method = ?, " \
                      "trans_total_expense = ?, trans_description = ? WHERE trans_id = ?"
 
     actual_query = Database.create_update_query(table_name, table_columns, column_id_name)
@@ -82,7 +82,7 @@ def test_database_insert(mock_db_path):
     expected_result = (1, '2000-01-01', 1, 'Cash', 1.11, 'This is a test.')
     table_name = "transactions"
     key_column_name = "trans_id"
-    table_columns = ["trans_date", "category_fk_id", "trans_payment_method", "trans_total_expense",
+    table_columns = ["trans_date", "category_fk", "trans_payment_method", "trans_total_expense",
                      "trans_description"]
     table_values = ("2000-01-01", "1", "Cash", 1.11, "This is a test.")
 
@@ -101,7 +101,7 @@ def test_database_update_transaction_full(mock_db_path):
     table_name = "transactions"
     key_column_name = "trans_id"
     record_id_to_update = 4
-    column_names = ["trans_date", "category_fk_id", "trans_payment_method", "trans_total_expense", "trans_description"]
+    column_names = ["trans_date", "category_fk", "trans_payment_method", "trans_total_expense", "trans_description"]
     updated_values = ("1999-12-12", 4, "Credit Card", 2.22, "This is an updated test.", record_id_to_update)
     expected_record = (record_id_to_update, "1999-12-12", 4, "Credit Card", 2.22, "This is an updated test.")
     primary_key_column_name = "trans_id"

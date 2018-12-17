@@ -65,14 +65,17 @@ def test_inserting_transaction_into_database(db_insert_mock, new_transaction_dat
 
 @patch("models.model_transaction.Database.update")
 def test_update_existing_transaction(db_update_mock, new_transaction_data):
-    transaction_to_update_id = 3
-    db_update_mock.return_value = transaction_to_update_id
-    expected_query_data = tuple(new_transaction_data.values()) + (transaction_to_update_id,)
+    table_name = "transactions"
+    column_names = ["trans_date", "category_fk", "trans_payment_method", "trans_total_expense", "trans_description"]
+    primary_key_column_name = "trans_id"
+    update_id = 3
+    db_update_mock.return_value = update_id
+    expected_query_data = tuple(new_transaction_data.values()) + (update_id,)
 
-    updated_transaction_id = Transaction.update(transaction_to_update_id, new_transaction_data)
+    updated_transaction_id = Transaction.update(update_id, new_transaction_data)
 
-    db_update_mock.assert_called_with(expected_query_data)
-    assert updated_transaction_id == transaction_to_update_id
+    db_update_mock.assert_called_with(table_name, column_names, expected_query_data, primary_key_column_name)
+    assert updated_transaction_id == update_id
 
 
 @patch("models.model_transaction.Database.delete")

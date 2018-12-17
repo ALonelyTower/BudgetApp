@@ -5,7 +5,7 @@ class Transaction:
     # TODO: Check if cursor.lastrowid is not influenced by others also interacting with the database
     _table_name = "transactions"
     _key_column_name = "trans_id"
-    _column_names = ["trans_date", "category_fk_id", "trans_payment_method", "trans_total_expense", "trans_description"]
+    _column_names = ["trans_date", "category_fk", "trans_payment_method", "trans_total_expense", "trans_description"]
 
     def __init__(self, primary_key, date, category, payment_method, total_expense, description):
         self.primary_key = primary_key
