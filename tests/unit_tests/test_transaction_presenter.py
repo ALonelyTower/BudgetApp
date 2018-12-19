@@ -10,14 +10,15 @@ from models.model_transaction import Transaction
 @patch("presenters.presenter_transaction.Transaction.insert")
 @patch("presenters.presenter_transaction.TransactionView", autospec=True)
 def test_create_new_transaction(trans_view_mock, insert_mock):
-    form_values = sentinel.form_values
+    form_values = {'category': "name", "category_id": 0}
     trans_view_mock.return_value.__enter__.return_value = trans_view_mock
     trans_view_mock.get_form_values.return_value = form_values
     subscriber = MagicMock(name="subscriber")
     category_presenter = MagicMock(name="category_presenter")
-    category_presenter.get_new_categories.return_value =
+    category_presenter.get_categories.return_value = []
+    category_presenter.find_category_id_by_name.return_value = 1
 
-    trans_presenter = TransactionPresenter()
+    trans_presenter = TransactionPresenter(category_presenter)
     trans_presenter.register_subscriber(subscriber)
     trans_presenter.create_new_transaction()
 
@@ -32,8 +33,10 @@ def test_do_not_create_new_transaction_if_user_cancels(view_mock, insert_mock):
     view_mock.return_value.__enter__.return_value = view_mock
     view_mock.did_user_approve_transaction.return_value = False
     subscriber = MagicMock(name="subscriber")
+    category_presenter = MagicMock(name="category_presenter")
+    category_presenter.get_categories.return_value = []
 
-    trans_presenter = TransactionPresenter()
+    trans_presenter = TransactionPresenter(category_presenter)
     trans_presenter.register_subscriber(subscriber)
     trans_presenter.create_new_transaction()
 

@@ -8,6 +8,7 @@ def new_transaction_data():
     return {
         "date": "2018/11/12",
         "category": "Gaming",
+        "category_id": 5,
         "payment_method": "Paypal",
         "total_expense": 10.83,
         "description": "Into the Breach"

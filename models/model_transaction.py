@@ -28,8 +28,9 @@ class Transaction:
     @classmethod
     def update(cls, transaction_id, update_data):
         # TODO:  Figure out a better way to update instance variables, and output sql statement for update
-        update_data = (update_data['date'], update_data['category'], update_data['payment_method'],
-                       update_data['total_expense'], update_data['description'], transaction_id)
+        update_data = (update_data['date'], update_data['category'], update_data['category_id'],
+                       update_data['payment_method'], update_data['total_expense'], update_data['description'],
+                       transaction_id)
 
         updated_transaction_id = Database.update(cls._table_name, cls._column_names, update_data, cls._key_column_name)
 
