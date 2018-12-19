@@ -14,6 +14,8 @@ def test_create_new_transaction(trans_view_mock, insert_mock):
     trans_view_mock.return_value.__enter__.return_value = trans_view_mock
     trans_view_mock.get_form_values.return_value = form_values
     subscriber = MagicMock(name="subscriber")
+    category_presenter = MagicMock(name="category_presenter")
+    category_presenter.get_new_categories.return_value =
 
     trans_presenter = TransactionPresenter()
     trans_presenter.register_subscriber(subscriber)

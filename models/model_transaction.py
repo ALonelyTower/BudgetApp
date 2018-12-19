@@ -1,4 +1,5 @@
 from database.database_connection import Database
+from models.model_category import Category
 
 
 class Transaction:
@@ -17,7 +18,7 @@ class Transaction:
 
     @classmethod
     def insert(cls, insert_data):
-        inserted_data = (insert_data['date'], insert_data['category'], insert_data['payment_method'],
+        inserted_data = (insert_data['date'], insert_data['category_id'], insert_data['payment_method'],
                          insert_data['total_expense'], insert_data['description'])
 
         new_transaction_id = Database.insert(cls._table_name, cls._column_names, inserted_data)
@@ -56,7 +57,7 @@ class Transaction:
     @classmethod
     def find_all(cls):
         # TODO: Convert Rows into Transaction objects
-        return Database.find_all()
+        return Database.find_all_transactions()
 
     def get_data(self):
         return {

@@ -88,7 +88,7 @@ def test_delete_existing_transaction(db_delete_mock):
     assert delete_success is True
 
 
-@patch("models.model_transaction.Database.find_all")
+@patch("models.model_transaction.Database.find_all_transactions")
 def test_find_all_transactions(db_find_all_mock, generate_transaction):
     list_of_transaction = list(generate_transaction)
     db_find_all_mock.return_value = list_of_transaction

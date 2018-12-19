@@ -27,7 +27,7 @@ delete_query = "DELETE FROM {table_name} WHERE {key_column_name} = ?"
 find_all_transactions = """SELECT trans_id, trans_date, cate_name, trans_payment_method, trans_total_expense, trans_description
                            FROM transactions
                            INNER JOIN categories
-                           ON transactions.category_fk_id=categories.cate_id;"""
+                           ON transactions.category_fk=categories.cate_id;"""
 
 # TODO: Refactor deprecated queries from project
 

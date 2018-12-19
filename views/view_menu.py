@@ -5,21 +5,24 @@ class MenuBar(wx.MenuBar):
     def __init__(self, parent, style=0):
         super().__init__(style=style)
         self.parent = parent
-        self.create_menu()
 
-    def create_menu(self):
         file_menu = wx.Menu(title="", style=0)
-
         quit_menu_item = wx.MenuItem(parentMenu=file_menu, id=wx.ID_EXIT, text="Q&uit\tCtrl+Q", helpString="Quit Application")
-
         file_menu.Append(menuItem=quit_menu_item)
-
         file_menu.Bind(wx.EVT_MENU, self.on_quit, quit_menu_item)
 
+        category_menu = wx.Menu(title="", style=0)
+        self._category_menu_item = wx.MenuItem(parentMenu=category_menu, id=wx.ID_ANY, text="Edit Categories...")
+        category_menu.Append(menuItem=self._category_menu_item)
+
         self.Append(file_menu, "&File")
+        self.Append(category_menu, "&Category")
 
     def on_quit(self, event):
         self.parent.Close()
+
+    def bind_categories_context_button(self, button_action, ):
+        self.Bind(wx.EVT_MENU, button_action, self._category_menu_item)
 
 
 class ContextMenu(wx.Menu):

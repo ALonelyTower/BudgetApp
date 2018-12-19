@@ -1,14 +1,15 @@
 from views.view_budget import BudgetView
 from presenters.presenter_transaction import TransactionPresenter
+from presenters.presenter_category import CategoryPresenter
 from models.model_transaction import Transaction
 
 
 class BudgetPresenter:
-    def __init__(self, budget_view, trans_presenter):
+    def __init__(self, budget_view, transaction_presenter):
         self._budget_view = budget_view
         self._refresh_transaction_list()
 
-        self._trans_presenter = trans_presenter
+        self._trans_presenter = transaction_presenter
         self._trans_presenter.register_subscriber(self)
 
         self._budget_view.bind_add_transaction_action(self.create_new_transaction)
@@ -43,7 +44,8 @@ if __name__ == '__main__':
     import wx
     app = wx.App(False)
     budget_v = BudgetView()
-    trans_p = TransactionPresenter()
+    categ_p = CategoryPresenter()
+    trans_p = TransactionPresenter(categ_p)
     budget_presenter = BudgetPresenter(budget_v, trans_p)
     budget_v.start()
     app.MainLoop()

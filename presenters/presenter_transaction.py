@@ -3,14 +3,20 @@ from views.view_transaction import TransactionView
 
 
 class TransactionPresenter:
-    def __init__(self):
+    def __init__(self, category_presenter=None):
+        self._category_presenter = category_presenter
         self._subscribers = []
 
     def create_new_transaction(self):
         with TransactionView(title="Create New Transaction") as trans_v:
+            categories = self._category_presenter.get_categories()
+            trans_v.set_categories(categories)
             if trans_v.did_user_approve_transaction():
-                transaction_data = trans_v.get_form_values()
-                Transaction.insert(transaction_data)
+                category_list = trans_v.get_new_categories()
+                self._category_presenter.add_new_categories(category_list)
+                trans_data = trans_v.get_form_values()
+                trans_data['category_id'] = self._category_presenter.find_category_id_by_name(trans_data['category'])
+                Transaction.insert(trans_data)
                 self._update_subscriber()
 
     def edit_transaction(self, transaction_id):

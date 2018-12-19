@@ -17,7 +17,8 @@ class TransactionView(wx.Dialog):
         self._set_flags_and_values()
         self._declare_form_ctrls()
         self._add_form_sections()
-        self._install_form_validator()
+        self._install_form_data_validator()
+        self._bind_internal_events()
 
         self.SetSizer(self._form_sizer)
 
@@ -26,12 +27,15 @@ class TransactionView(wx.Dialog):
         self._label_flags = wx.TOP | wx.LEFT | wx.RIGHT
         self._textctrl_flags = wx.BOTTOM | wx.LEFT | wx.RIGHT
         self._date_delimiter = '-'
+        self._default_categories = ["", "[New Category]"]
+        self._new_categories = []
 
     def _declare_form_ctrls(self):
         self._date_year_textctrl = wx.TextCtrl(self, name="date_year")
         self._date_month_textctrl = wx.TextCtrl(self, name="date_month")
         self._date_day_textctrl = wx.TextCtrl(self, name="date_day")
-        self._category_textctrl = wx.ComboBox(parent=self, name="category", style=wx.CB_READONLY)
+        self._category_textctrl = wx.ComboBox(parent=self, name="category", style=wx.CB_READONLY,
+                                              choices=self._default_categories)
         self._payment_method_textctrl = wx.TextCtrl(self, name="payment_method")
         self._total_expense_textctrl = wx.TextCtrl(self, name="total_expense")
         self._description_textctrl = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL, name="description")
@@ -51,7 +55,7 @@ class TransactionView(wx.Dialog):
         self._add_description_section()
         self._add_ok_cancel_button_section()
 
-    def _install_form_validator(self):
+    def _install_form_data_validator(self):
         self._date_year_textctrl.SetValidator(dfv.DateFormValidator())
         self._date_month_textctrl.SetValidator(dfv.DateFormValidator())
         self._date_day_textctrl.SetValidator(dfv.DateFormValidator())
@@ -69,12 +73,19 @@ class TransactionView(wx.Dialog):
             'description': self._description_textctrl.GetValue()
         }
 
+    def get_new_categories(self):
+        return self._new_categories
+
+    def set_categories(self, categories):
+        for category in categories:
+            self._category_textctrl.Append(category[1], category[0])
+
     def _get_date_value(self):
         year = self._date_year_textctrl.GetValue()
         month = self._date_month_textctrl.GetValue()
         day = self._date_day_textctrl.GetValue()
-        delimeter = self._date_delimiter
-        return f"{year}{delimeter}{month}{delimeter}{day}"
+        delimiter = self._date_delimiter
+        return f"{year}{delimiter}{month}{delimiter}{day}"
 
     def set_form_values(self, transaction_data):
         year, month, day = self._split_date(transaction_data['date'])
@@ -192,10 +203,15 @@ class TransactionView(wx.Dialog):
         button_sizer.Realize()
         self._form_sizer.Add(button_sizer, flag=wx.ALL | wx.CENTER, border=self._formitem_border)
 
+    def _bind_internal_events(self):
+        self._category_textctrl.Bind(wx.EVT_COMBOBOX, self._add_new_category)
 
-if __name__ == '__main__':
-    app = wx.App()
-    view = TransactionView()
-    view.display_form()
-    app.MainLoop()
-
+    def _add_new_category(self, event):
+        selected_value = self._category_textctrl.GetValue()
+        if selected_value == "[New Category]":
+            dlg = wx.TextEntryDialog(parent=self, message="Enter new category name:")
+            if dlg.ShowModal() == wx.ID_OK:
+                new_category_name = dlg.GetValue()
+                self._category_textctrl.Append(new_category_name, -1)
+                self._category_textctrl.SetValue(new_category_name)
+                self._new_categories.append((-1, new_category_name))

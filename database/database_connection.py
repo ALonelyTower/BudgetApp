@@ -35,10 +35,23 @@ class Database:
 
     @classmethod
     def insert(cls, table_name, column_names, table_values):
+        if not cls._is_it_a_container(column_names):
+            column_names = (column_names,)
+
+        if not cls._is_it_a_container(table_values):
+            table_values = (table_values,)
+
         query_statement = Database.create_insert_query(table_name, column_names)
         with DatabaseConnection(cls._database_path) as cursor:
             cursor.execute(query_statement, table_values)
             return cursor.lastrowid
+
+    @classmethod
+    def _is_it_a_container(cls, value):
+        try:
+            return isinstance(value, (list, tuple))
+        except TypeError:
+            return False
 
     @classmethod
     def update(cls, table_name, column_names, updated_values, primary_key_column_name):
@@ -55,17 +68,25 @@ class Database:
             return True
 
     @classmethod
-    def find(cls, table_name, key_column_name, record_id):
-        query_statement = Database.create_find_query(table_name, key_column_name)
+    def find(cls, table_name, column_name, column_value):
+        query_statement = Database.create_find_query(table_name, column_name)
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(query_statement, (record_id,))
+            cursor.execute(query_statement, (column_value,))
             return cursor.fetchone()
 
     @classmethod
-    def find_all(cls):
+    def find_all_transactions(cls):
+        # TODO: Create generic find_all method that takes table name
         with DatabaseConnection(cls._database_path) as cursor:
             cursor.execute(sql_scripts.find_all_transactions)
             return cursor.fetchall()
+
+    @classmethod
+    def find_all_categories(cls):
+        with DatabaseConnection(cls._database_path) as cursor:
+            cursor.execute("""SELECT * FROM categories""")
+            return cursor.fetchall()
+
 
     @classmethod
     def create_insert_query(cls, table_name, column_names):

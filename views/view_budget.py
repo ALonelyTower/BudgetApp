@@ -128,6 +128,10 @@ class BudgetView(wx.Frame):
         command = self._create_command(button_action)
         self._context_menu.bind_delete_menu_item(command)
 
+    def bind_edit_categories_menu_item(self, button_action):
+        command = self._create_command(button_action)
+        self._menu_bar.bind_categories_context_button(command)
+
     @staticmethod
     def _create_command(button_action):
         # TODO: When things get out of hand, move to a command class
