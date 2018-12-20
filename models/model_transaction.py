@@ -28,7 +28,7 @@ class Transaction:
         return Database.delete(delete_id, cls._table_name, cls._key_column_name)
 
     @classmethod
-    def find(cls, transaction_id):
+    def find(cls, transaction_id: int) -> TransactionDTO:
 
         if transaction_id is None:
             raise TypeError(f"Invalid Transaction Id Given: {transaction_id}")

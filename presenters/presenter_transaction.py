@@ -9,8 +9,8 @@ class TransactionPresenter:
 
     def create_new_transaction(self):
         with TransactionView(title="Create New Transaction") as trans_view:
-            self._populate_category_dropdown(trans_view)
             if trans_view.did_user_approve_transaction():
+                self._populate_category_dropdown(trans_view)
                 self._insert_newly_added_categories_from_form(trans_view)
                 transaction_record = self._create_transaction_payload_for_insertion(trans_view)
                 Transaction.insert(transaction_record)
@@ -23,8 +23,7 @@ class TransactionPresenter:
         return trans_dto
 
     def edit_transaction(self, transaction_id):
-        trans_record = Transaction.find(transaction_id)
-        trans_record.category.name = self._category_presenter.find_name_by_id(trans_record.category.id)
+        trans_record = self._prepare_transaction_for_form(transaction_id)
         with TransactionView(title="Edit Transaction") as trans_view:
             self._populate_category_dropdown(trans_view)
             trans_view.set_form_values(trans_record)
@@ -34,29 +33,34 @@ class TransactionPresenter:
                 Transaction.update(updated_record)
                 self._update_subscribers()
 
-    def _populate_category_dropdown(self, transaction_view):
-        categories = self._category_presenter.get_categories()
-        transaction_view.set_categories(categories)
-
     def _insert_newly_added_categories_from_form(self, transaction_view):
         category_list = transaction_view.get_new_categories()
         self._category_presenter.add_new_categories(category_list)
 
     def view_transaction(self, transaction_id):
-        record = Transaction.find(transaction_id)
-        with TransactionView(title="View Transaction") as trans_v:
-            data_transfer_object = record.get_data()
-            trans_v.set_form_values(data_transfer_object)
-            trans_v.display_form()
+        trans_record = self._prepare_transaction_for_form(transaction_id)
+        with TransactionView(title="View Transaction") as trans_view:
+            self._populate_category_dropdown(trans_view)
+            trans_view.set_form_values(trans_record)
+            trans_view.display_form()
 
     def delete_transaction(self, transaction_id):
-        record = Transaction.find(transaction_id)
-        with TransactionView(title="Delete Transaction") as trans_v:
-            data_transfer_object = record.get_data()
-            trans_v.set_form_values(data_transfer_object)
-            if trans_v.did_user_confirm_deletion():
+        trans_record = self._prepare_transaction_for_form(transaction_id)
+        with TransactionView(title="Delete Transaction") as trans_view:
+            self._populate_category_dropdown(trans_view)
+            trans_view.set_form_values(trans_record)
+            if trans_view.did_user_confirm_deletion():
                 Transaction.delete(transaction_id)
                 self._update_subscribers()
+
+    def _prepare_transaction_for_form(self, transaction_id):
+        trans_record = Transaction.find(transaction_id)
+        trans_record.category.name = self._category_presenter.find_name_by_id(trans_record.category.id)
+        return trans_record
+
+    def _populate_category_dropdown(self, transaction_view):
+        categories = self._category_presenter.get_categories()
+        transaction_view.set_categories(categories)
 
     def register_subscriber(self, subscriber):
         self._subscribers.append(subscriber)
