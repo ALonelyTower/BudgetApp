@@ -16,7 +16,7 @@ class Category:
 
     @classmethod
     def find_by_name(cls, name):
-        return Database.find(cls._category_table_name, cls._category_column_label_name, name)
+        return Database.find(cls._category_table_name, cls._column_names, cls._category_column_label_name, name)
 
     @classmethod
     def find_by_id(cls, category_id):
