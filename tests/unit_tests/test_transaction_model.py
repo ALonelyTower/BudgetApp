@@ -20,9 +20,9 @@ def new_transaction_data():
 @pytest.fixture()
 def generate_transaction():
     num_of_transactions = 5
-    return (Transaction(primary_key=count, date=f"{count}-{count}-{count}", category=f"{count} category",
-            payment_method=f"{count} payment method", total_expense=float(count),
-            description=f"{count} description") for count in range(num_of_transactions))
+    return (TransactionDTO(transaction_id=count, date=f"{count}-{count}-{count}",
+                           category=CategoryDTO(count, f"{count}-Category"), payment_method=f"{count} payment method",
+                           total_expense=float(count), description=f"{count} description") for count in range(num_of_transactions))
 
 
 @pytest.fixture()

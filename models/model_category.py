@@ -9,9 +9,6 @@ class Category:
     _category_column_label_name = "cate_name"
     _column_names = [_category_column_id_name, _category_column_label_name]
 
-    def __init__(self):
-        pass
-
     @classmethod
     def insert(cls, name):
         # TODO: Think of more readable way to either convert values to tuple for insertion method

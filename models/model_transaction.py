@@ -8,14 +8,6 @@ class Transaction:
     _key_column_name = "trans_id"
     _column_names = ("trans_date", "category_fk", "trans_payment_method", "trans_total_expense", "trans_description")
 
-    def __init__(self, primary_key, date, category, payment_method, total_expense, description):
-        self.primary_key = primary_key
-        self.date = date
-        self.category_id = category
-        self.payment_method = payment_method
-        self.total_expense = total_expense
-        self.description = description
-
     @classmethod
     def insert(cls, transaction_record):
         insert_data = transaction_record.prepare_values_for_insert()
