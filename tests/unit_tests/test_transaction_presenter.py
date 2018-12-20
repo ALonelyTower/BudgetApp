@@ -36,7 +36,7 @@ def test_create_new_transaction(trans_view_mock, insert_mock, transaction_record
     trans_presenter.register_subscriber(subscriber)
     trans_presenter.create_new_transaction()
 
-    assert trans_view_mock.did_user_approve_transaction.called is True
+    assert trans_view_mock.display_editable_form.called is True
     insert_mock.assert_called_with(form_values)
     assert subscriber.update.called
 
@@ -45,7 +45,7 @@ def test_create_new_transaction(trans_view_mock, insert_mock, transaction_record
 @patch("presenters.presenter_transaction.TransactionView", autospec=True)
 def test_do_not_create_new_transaction_if_user_cancels(view_mock, insert_mock):
     view_mock.return_value.__enter__.return_value = view_mock
-    view_mock.did_user_approve_transaction.return_value = False
+    view_mock.display_editable_form.return_value = False
     subscriber = MagicMock(name="subscriber")
     category_presenter = MagicMock(name="category_presenter")
     category_presenter.get_categories.return_value = []
@@ -54,7 +54,7 @@ def test_do_not_create_new_transaction_if_user_cancels(view_mock, insert_mock):
     trans_presenter.register_subscriber(subscriber)
     trans_presenter.create_new_transaction()
 
-    assert view_mock.did_user_approve_transaction.called is True
+    assert view_mock.display_editable_form.called is True
     assert insert_mock.called is False
     assert subscriber.update.called is False
 
@@ -76,7 +76,7 @@ def test_edit_transaction(find_mock, update_mock, view_mock, transaction_record)
 
     find_mock.assert_called_with(transaction_id)
     view_mock.set_form_values.assert_called_with(transaction_record)
-    assert view_mock.did_user_approve_transaction.called is True
+    assert view_mock.display_editable_form.called is True
     assert view_mock.get_form_values.called
     update_mock.assert_called_with(transaction_record)
     assert subscriber.update.called
@@ -86,20 +86,17 @@ def test_edit_transaction(find_mock, update_mock, view_mock, transaction_record)
 @patch("presenters.presenter_transaction.Transaction.find")
 def test_view_transaction(find_mock, view_mock):
     transaction_id = 7
-    raw_data = sentinel.raw_data
-    record = MagicMock(name="transaction_mock", spec=Transaction)
-    record.get_data.return_value = raw_data
-    find_mock.return_value = record
+    trans_record = TransactionDTO(1, "2000-01-01", CategoryDTO(1, "TestCategory"), "TestCredit", 1.11, "TestDescription")
+    find_mock.return_value = trans_record
     view_mock.return_value.__enter__.return_value = view_mock
-    view_mock.get_form_values.return_value = raw_data
+    category_presenter = MagicMock(name="CategoryPresenter")
 
-    trans_presenter = TransactionPresenter()
+    trans_presenter = TransactionPresenter(category_presenter)
     trans_presenter.view_transaction(transaction_id)
 
     assert find_mock.called is True
-    assert record.get_data.called is True
-    view_mock.set_form_values.assert_called_with(raw_data)
-    assert view_mock.display_form.called is True
+    view_mock.set_form_values.assert_called_with(trans_record)
+    assert view_mock.display_readonly_form.called is True
 
 
 @patch("presenters.presenter_transaction.Transaction.delete")
@@ -107,22 +104,21 @@ def test_view_transaction(find_mock, view_mock):
 @patch("presenters.presenter_transaction.Transaction.find")
 def test_delete_transaction(find_mock, view_mock, delete_mock):
     transaction_id = 7
-    raw_data = sentinel.raw_data
-    record = MagicMock(name="transaction_mock", spec=Transaction)
-    record.get_data.return_value = raw_data
+    trans_record = TransactionDTO(1, "2000-01-01", CategoryDTO(1, "TestCategory"), "TestCredit", 1.11, "TestDescription")
     view_mock.return_value.__enter__.return_value = view_mock
-    find_mock.return_value = record
+    find_mock.return_value = trans_record
     subscriber = MagicMock(name="subscriber")
+    category_presenter = MagicMock(name="CategoryPresenter")
 
-    transaction_presenter = TransactionPresenter()
+    transaction_presenter = TransactionPresenter(category_presenter)
     transaction_presenter.register_subscriber(subscriber)
     transaction_presenter.delete_transaction(transaction_id)
 
-    assert find_mock.called is True
-    record.get_data.called is True
+    find_mock.assert_called_with(transaction_id)
     assert view_mock.set_form_values.called is True
     assert view_mock.did_user_confirm_deletion.called is True
     assert delete_mock.called is True
+    assert subscriber.update.called is True
 
 
 @patch("presenters.presenter_transaction.Transaction.delete")
@@ -133,10 +129,12 @@ def test_do_not_delete_transaction_if_user_cancels(find_mock, view_mock, delete_
     view_mock.return_value.__enter__.return_value = view_mock
     view_mock.did_user_confirm_deletion.return_value = False
     subscriber = MagicMock(name="subscriber")
+    category_presenter = MagicMock(name="CategoryPresenter")
 
-    transaction_presenter = TransactionPresenter()
+    transaction_presenter = TransactionPresenter(category_presenter)
     transaction_presenter.register_subscriber(subscriber)
     transaction_presenter.delete_transaction(transaction_id)
 
+    find_mock.assert_called_with(transaction_id)
     assert delete_mock.called is False
     assert subscriber.update.called is False

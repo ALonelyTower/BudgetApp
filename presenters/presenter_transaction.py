@@ -3,14 +3,16 @@ from views.view_transaction import TransactionView
 
 
 class TransactionPresenter:
+    # TODO: Refactor did_user_approve_transaction to be separate:  One to show form, the other to confirm boolean
     def __init__(self, category_presenter=None):
         self._category_presenter = category_presenter
         self._subscribers = []
 
     def create_new_transaction(self):
         with TransactionView(title="Create New Transaction") as trans_view:
-            if trans_view.did_user_approve_transaction():
-                self._populate_category_dropdown(trans_view)
+            self._populate_category_dropdown(trans_view)
+            form_accepted = trans_view.display_editable_form()
+            if form_accepted:
                 self._insert_newly_added_categories_from_form(trans_view)
                 transaction_record = self._create_transaction_payload_for_insertion(trans_view)
                 Transaction.insert(transaction_record)
@@ -27,7 +29,8 @@ class TransactionPresenter:
         with TransactionView(title="Edit Transaction") as trans_view:
             self._populate_category_dropdown(trans_view)
             trans_view.set_form_values(trans_record)
-            if trans_view.did_user_approve_transaction():
+            form_accepted = trans_view.display_editable_form()
+            if form_accepted:
                 self._insert_newly_added_categories_from_form(trans_view)
                 updated_record = trans_view.get_form_values()
                 Transaction.update(updated_record)
@@ -42,7 +45,7 @@ class TransactionPresenter:
         with TransactionView(title="View Transaction") as trans_view:
             self._populate_category_dropdown(trans_view)
             trans_view.set_form_values(trans_record)
-            trans_view.display_form()
+            trans_view.display_readonly_form()
 
     def delete_transaction(self, transaction_id):
         trans_record = self._prepare_transaction_for_form(transaction_id)
