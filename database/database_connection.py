@@ -34,16 +34,10 @@ class Database:
         pass
 
     @classmethod
-    def insert(cls, table_name, column_names, table_values):
-        if not cls._is_it_a_container(column_names):
-            column_names = (column_names,)
-
-        if not cls._is_it_a_container(table_values):
-            table_values = (table_values,)
-
+    def insert(cls, table_name: str, column_names: tuple, column_values: tuple) -> int:
         query_statement = Database.create_insert_query(table_name, column_names)
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute(query_statement, table_values)
+            cursor.execute(query_statement, column_values)
             return cursor.lastrowid
 
     @classmethod
@@ -68,15 +62,14 @@ class Database:
             return True
 
     @classmethod
-    def find(cls, table_name, column_name, column_value):
-        query_statement = Database.create_find_query(table_name, column_name)
+    def find(cls, table_name: str, select_column_names: tuple, search_column_name: str, column_value) -> tuple:
+        query_statement = Database.create_find_query(table_name, select_column_names, search_column_name)
         with DatabaseConnection(cls._database_path) as cursor:
             cursor.execute(query_statement, (column_value,))
             return cursor.fetchone()
 
     @classmethod
-    def find_all_transactions(cls):
-        # TODO: Create generic find_all method that takes table name
+    def find_all_transactions_with_categories(cls):
         with DatabaseConnection(cls._database_path) as cursor:
             cursor.execute(sql_scripts.find_all_transactions)
             return cursor.fetchall()
@@ -84,14 +77,13 @@ class Database:
     @classmethod
     def find_all_categories(cls):
         with DatabaseConnection(cls._database_path) as cursor:
-            cursor.execute("""SELECT * FROM categories""")
+            cursor.execute(sql_scripts.find_all_categories)
             return cursor.fetchall()
-
 
     @classmethod
     def create_insert_query(cls, table_name, column_names):
         """
-        :param table_name: Name of database table that's being inserted into
+        :param table_name: Name of table that's being inserted into
         :param column_names: A tuple of the table's column names
         :return: A valid sql query for inserting a record into the specified database table
         """
@@ -104,8 +96,11 @@ class Database:
         return sql_scripts.insert_query.format(table_name=table_name, column_names=column_string, parameters=param_string)
 
     @classmethod
-    def create_find_query(cls, table_name, key_column_name):
-        return sql_scripts.find_query.format(table_name=table_name, key_column_name=key_column_name)
+    def create_find_query(cls, table_name, column_names, key_column_name):
+        select_column_names = ", ".join(column_names)
+        result = sql_scripts.find_query.format(table_name=table_name, select_column_names=select_column_names,
+                                               criteria_column=key_column_name)
+        return result
 
     @classmethod
     def create_update_query(cls, table_name, column_names, primary_key_column_name):

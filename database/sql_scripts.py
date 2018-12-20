@@ -20,7 +20,7 @@ insert_query = "INSERT INTO {table_name} ({column_names}) VALUES ({parameters})"
 
 update_query = "UPDATE {table_name} SET {columns_to_update} WHERE {primary_key_column_name} = ?"
 
-find_query = "SELECT * FROM {table_name} WHERE {key_column_name} = ?"
+find_query = "SELECT {select_column_names} FROM {table_name} WHERE {criteria_column} = ?"
 
 delete_query = "DELETE FROM {table_name} WHERE {key_column_name} = ?"
 
@@ -28,6 +28,8 @@ find_all_transactions = """SELECT trans_id, trans_date, cate_name, trans_payment
                            FROM transactions
                            INNER JOIN categories
                            ON transactions.category_fk=categories.cate_id;"""
+
+find_all_categories = """SELECT * FROM categories"""
 
 # TODO: Refactor deprecated queries from project
 
