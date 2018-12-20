@@ -176,7 +176,7 @@ class TransactionView(wx.Dialog):
                 self._category_textctrl.SetValue(new_category.name)
                 self._new_categories.append(new_category)
 
-    def display_form(self):
+    def display_readonly_form(self):
         with self._temporarily_disable_form():
             self.ShowModal()
             self.Destroy()
@@ -190,12 +190,12 @@ class TransactionView(wx.Dialog):
         result = False
 
         with self._temporarily_disable_form():
-            if self.did_user_approve_transaction():
+            if self.display_editable_form():
                 result = self._ask_user_for_final_delete_confirmation()
 
         return result
 
-    def did_user_approve_transaction(self):
+    def display_editable_form(self):
         return self.ShowModal() == wx.ID_OK
 
     @contextmanager
