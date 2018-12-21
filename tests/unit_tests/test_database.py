@@ -6,7 +6,7 @@ from unittest.mock import PropertyMock
 from settings import DB_PATH_TEST
 from database.reset_database import reset_database
 from database.populate_database import populate_database
-from database.database_connection import Database
+from database.database import Database
 # TODO: Refactor tests to be less verbose
 
 
@@ -124,7 +124,7 @@ def test_delete_categories_query_construction():
     assert actual_query == expected_query
 
 
-@patch("database.database_connection.Database._database_path", new_callable=PropertyMock)
+@patch("database.database.Database._database_path", new_callable=PropertyMock)
 def test_database_find_for_transaction(mock_db_path, transaction_columns_select):
     mock_db_path.return_value = DB_PATH_TEST
     reset_database(DB_PATH_TEST)
@@ -139,7 +139,7 @@ def test_database_find_for_transaction(mock_db_path, transaction_columns_select)
     assert actual_result == expected_result
 
 
-@patch("database.database_connection.Database._database_path", new_callable=PropertyMock)
+@patch("database.database.Database._database_path", new_callable=PropertyMock)
 def test_database_find_for_categories(mock_db_path, category_columns_select):
     mock_db_path.return_value = DB_PATH_TEST
     reset_database(DB_PATH_TEST)
@@ -154,7 +154,7 @@ def test_database_find_for_categories(mock_db_path, category_columns_select):
     assert actual_result == expected_result
 
 
-@patch("database.database_connection.Database._database_path", new_callable=PropertyMock)
+@patch("database.database.Database._database_path", new_callable=PropertyMock)
 def test_database_insert_for_transaction(mock_db_path, transaction_columns_insert, transaction_columns_select):
     mock_db_path.return_value = DB_PATH_TEST
     reset_database(DB_PATH_TEST)
@@ -171,7 +171,7 @@ def test_database_insert_for_transaction(mock_db_path, transaction_columns_inser
     assert actual_result == expected_result
 
 
-@patch("database.database_connection.Database._database_path", new_callable=PropertyMock)
+@patch("database.database.Database._database_path", new_callable=PropertyMock)
 def test_database_insert_for_categories(mock_db_path, category_columns_select, category_columns_insert):
     mock_db_path.return_value = DB_PATH_TEST
     reset_database(DB_PATH_TEST)
@@ -189,7 +189,7 @@ def test_database_insert_for_categories(mock_db_path, category_columns_select, c
     assert actual_result == expected_result
 
 
-@patch("database.database_connection.Database._database_path", new_callable=PropertyMock)
+@patch("database.database.Database._database_path", new_callable=PropertyMock)
 def test_database_update_transaction_full(mock_db_path, transaction_columns_select, transaction_columns_update):
     mock_db_path.return_value = DB_PATH_TEST
     reset_database(DB_PATH_TEST)
@@ -209,7 +209,7 @@ def test_database_update_transaction_full(mock_db_path, transaction_columns_sele
     assert updated_record == expected_record
 
 
-@patch("database.database_connection.Database._database_path", new_callable=PropertyMock)
+@patch("database.database.Database._database_path", new_callable=PropertyMock)
 def test_database_delete_transaction(mock_db_path, transaction_columns_insert):
     mock_db_path.return_value = DB_PATH_TEST
     reset_database(DB_PATH_TEST)

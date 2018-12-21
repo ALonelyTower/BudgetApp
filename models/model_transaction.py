@@ -1,4 +1,4 @@
-from database.database_connection import Database
+from database.database import Database
 from models.data_transfer_object import TransactionDTO
 
 
