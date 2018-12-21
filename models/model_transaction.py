@@ -47,30 +47,3 @@ class Transaction:
     def find_all(cls):
         # TODO: Convert Rows into Transaction objects
         return Database.find_all_transactions_with_categories()
-
-    def get_data(self):
-        return {
-            "date": self.date,
-            "category": self.category_id,
-            "payment_method": self.payment_method,
-            "total_expense": self.total_expense,
-            "description": self.description,
-        }
-
-    def get_list_of_values(self):
-        return [
-            self.date,
-            self.category_id,
-            self.payment_method,
-            self.total_expense,
-            self.description,
-        ]
-
-    def __eq__(self, other):
-        return self.get_data() == other.get_data()
-
-    def __repr__(self):
-        return f"Transaction({self.primary_key}, '{self.date}', {self.category_id}, '{self.payment_method}', " \
-                f"'{self.description}')"
-
-

@@ -1,16 +1,16 @@
 from views.view_budget import BudgetView
 from presenters.presenter_transaction import TransactionPresenter
 from presenters.presenter_category import CategoryPresenter
-from models.model_transaction import Transaction
 
 
 class BudgetPresenter:
     def __init__(self, budget_view, transaction_presenter):
         self._budget_view = budget_view
-        self._refresh_transaction_list()
 
         self._trans_presenter = transaction_presenter
         self._trans_presenter.register_subscriber(self)
+
+        self._refresh_transaction_list()
 
         self._budget_view.bind_add_transaction_action(self.create_new_transaction)
         self._budget_view.bind_view_transaction_action(self.view_selected_transaction_item)
@@ -36,7 +36,7 @@ class BudgetPresenter:
         self._refresh_transaction_list()
 
     def _refresh_transaction_list(self):
-        transaction_list = Transaction.find_all()
+        transaction_list = self._trans_presenter.find_all()
         self._budget_view.set_transaction_list_ctrl(transaction_list)
 
 

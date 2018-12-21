@@ -10,15 +10,19 @@ class TransactionPresenter:
 
     def create_new_transaction(self):
         with TransactionView(title="Create New Transaction") as trans_view:
+            return self._create_new_transactions(trans_view)
+
+    def _create_new_transactions(self, trans_view):
             self._populate_category_dropdown(trans_view)
             form_accepted = trans_view.display_editable_form()
             if form_accepted:
                 self._insert_newly_added_categories_from_form(trans_view)
-                transaction_record = self._create_transaction_payload_for_insertion(trans_view)
-                Transaction.insert(transaction_record)
+                transaction_record = self._prepare_transaction_payload_for_insertion(trans_view)
+                new_id = Transaction.insert(transaction_record)
                 self._update_subscribers()
+                return new_id
 
-    def _create_transaction_payload_for_insertion(self, transaction_view):
+    def _prepare_transaction_payload_for_insertion(self, transaction_view):
         trans_dto = transaction_view.get_form_values()
         category_name = trans_dto.category.name
         trans_dto.category.id = self._category_presenter.find_id_by_name(category_name)
@@ -64,6 +68,9 @@ class TransactionPresenter:
     def _populate_category_dropdown(self, transaction_view):
         categories = self._category_presenter.get_categories()
         transaction_view.set_categories(categories)
+
+    def find_all(self):
+        return Transaction.find_all()
 
     def register_subscriber(self, subscriber):
         self._subscribers.append(subscriber)
