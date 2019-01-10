@@ -4,9 +4,9 @@ from unittest.mock import PropertyMock
 
 
 from settings import DB_PATH_TEST
-from database.reset_database import reset_database
-from database.populate_database import populate_database
-from database.database import Database
+from data_storage.reset_database import reset_database
+from data_storage.populate_database import populate_database
+from data_storage.database import Database
 # TODO: Refactor tests to be less verbose
 
 

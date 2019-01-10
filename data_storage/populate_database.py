@@ -2,8 +2,8 @@ import json
 
 
 import settings
-from database import sql_scripts
-from database.database_connection import DatabaseConnection
+from data_storage import sql_scripts
+from data_storage.database_connection import DatabaseConnection
 
 
 def populate_database(database_path):

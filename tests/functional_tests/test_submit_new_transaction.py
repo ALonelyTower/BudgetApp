@@ -3,9 +3,9 @@ from tests.mocks.mock_view_transaction import MockTransactionView
 from presenters.presenter_category import CategoryPresenter
 from models.data_transfer_object import TransactionDTO, CategoryDTO
 from models.model_transaction import Transaction
-from database.database import Database
-from database.reset_database import reset_database
-from database.populate_database import populate_database
+from data_storage.database import Database
+from data_storage.reset_database import reset_database
+from data_storage.populate_database import populate_database
 from settings import DB_PATH_TEST
 
 import wx

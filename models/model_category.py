@@ -1,4 +1,4 @@
-from database.database import Database
+from data_storage.database import Database
 from models.data_transfer_object import CategoryDTO
 
 
