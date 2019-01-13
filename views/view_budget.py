@@ -5,13 +5,22 @@ from views import view_menu
 
 
 class BudgetView(wx.Frame):
-    def __init__(self, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition, size=wx.Size(1080, 720),
+    def __init__(self, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition, size=wx.Size(1140, 720),
                  style=wx.DEFAULT_FRAME_STYLE, name=wx.FrameNameStr):
 
         super().__init__(parent, id, title, pos, size, style, name)
 
+        self._create_column_id_variables()
         self._init_gui_control_widgets()
         self._bind_commands_to_gui_controls()
+
+    def _create_column_id_variables(self):
+        self._INDEX_COL = 0
+        self._DATET_COL = 1
+        self._CATEG_COL = 2
+        self._PAYME_COL = 3
+        self._TOTAL_COL = 4
+        self._DESCR_COL = 5
 
     def _init_gui_control_widgets(self):
         # Methods are positionally dependent.  Reordering them may break things.
@@ -22,11 +31,11 @@ class BudgetView(wx.Frame):
         self._create_panel_sizer()
 
         self._menu_bar = view_menu.MenuBar(self)
-        self._context_menu = view_menu.ContextMenu(self._transaction_list_view)
+        self._context_menu = view_menu.ContextMenu(self._trans_listview_ctrl)
         self.SetMenuBar(self._menu_bar)
 
     def _bind_commands_to_gui_controls(self):
-        self._transaction_list_view.Bind(wx.EVT_RIGHT_DOWN, self._on_right_click)
+        self._trans_listview_ctrl.Bind(wx.EVT_RIGHT_DOWN, self._on_right_click)
 
     def start(self):
         self.Show()
@@ -50,19 +59,27 @@ class BudgetView(wx.Frame):
         return os.path.isfile(path)
 
     def _create_transaction_table(self):
-        self._transaction_list_view = wx.ListView(self._panel, style=wx.LC_REPORT)
-        self._transaction_list_view.InsertColumn(col=1, heading="Date", format=wx.LIST_FORMAT_CENTER, width=100)
-        self._transaction_list_view.InsertColumn(col=2, heading="Category", format=wx.LIST_FORMAT_CENTER, width=200)
-        self._transaction_list_view.InsertColumn(col=3, heading="Payment Method", format=wx.LIST_FORMAT_CENTER, width=150)
-        self._transaction_list_view.InsertColumn(col=4, heading="Total Expense", format=wx.LIST_FORMAT_CENTER, width=100)
-        self._transaction_list_view.InsertColumn(col=5, heading="Description", format=wx.LIST_FORMAT_CENTER, width=375)
+        self._trans_listview_ctrl = wx.ListView(self._panel, style=wx.LC_REPORT)
+
+        self._trans_listview_ctrl.InsertColumn(col=self._INDEX_COL, heading="#",
+                                               format=wx.LIST_FORMAT_CENTER, width=50)
+        self._trans_listview_ctrl.InsertColumn(col=self._DATET_COL, heading="Date",
+                                               format=wx.LIST_FORMAT_CENTER, width=100)
+        self._trans_listview_ctrl.InsertColumn(col=self._CATEG_COL, heading="Category",
+                                               format=wx.LIST_FORMAT_CENTER, width=200)
+        self._trans_listview_ctrl.InsertColumn(col=self._PAYME_COL, heading="Payment Method",
+                                               format=wx.LIST_FORMAT_CENTER, width=175)
+        self._trans_listview_ctrl.InsertColumn(col=self._TOTAL_COL, heading="Total Expense",
+                                               format=wx.LIST_FORMAT_LEFT, width=100)
+        self._trans_listview_ctrl.InsertColumn(col=self._DESCR_COL, heading="Description",
+                                               format=wx.LIST_FORMAT_CENTER, width=375)
 
     def _create_panel_sizer(self):
         self._grid_bag_sizer = wx.GridBagSizer(vgap=0, hgap=0)
 
         self._grid_bag_sizer.Add(window=self._add_transaction_button, pos=(0, 0),
                                  flag=wx.TOP | wx.LEFT | wx.BOTTOM | wx.ALIGN_CENTER_HORIZONTAL, border=10)
-        self._grid_bag_sizer.Add(window=self._transaction_list_view, pos=(0, 1), flag=wx.EXPAND | wx.ALL, border=10)
+        self._grid_bag_sizer.Add(window=self._trans_listview_ctrl, pos=(0, 1), flag=wx.EXPAND | wx.ALL, border=10)
 
         # Must only be set after adding widgets to Sizer.
         self._grid_bag_sizer.AddGrowableRow(0, 0)
@@ -73,39 +90,40 @@ class BudgetView(wx.Frame):
 
     def _on_right_click(self, event):
         off_flag = 0
-        num_of_entries = self._transaction_list_view.GetItemCount()
+        num_of_entries = self._trans_listview_ctrl.GetItemCount()
         for index in range(num_of_entries):
-            self._transaction_list_view.Select(index, on=off_flag)
+            self._trans_listview_ctrl.Select(index, on=off_flag)
         point = event.GetPosition()
-        index, hit_flag = self._transaction_list_view.HitTest(point)
+        index, hit_flag = self._trans_listview_ctrl.HitTest(point)
 
-        if hit_flag is wx.LIST_HITTEST_ABOVE | wx.LIST_HITTEST_ONITEMLABEL or hit_flag is wx.LIST_HITTEST_ONITEMLABEL:
-            self._transaction_list_view.Select(index)
-            self._transaction_list_view.Focus(index)
+        if hit_flag is wx.LIST_HITTEST_ONITEMLABEL:
+            self._trans_listview_ctrl.Select(index)
+            self._trans_listview_ctrl.Focus(index)
             self.PopupMenu(self._context_menu)
 
     def set_transaction_list_ctrl(self, transaction_list):
-        # TODO: Refactor for readability
-        self._transaction_list_view.DeleteAllItems()
-        for index, trans in enumerate(transaction_list):
-            list_item = self._create_list_item(index, trans[0], trans[1])
-            index = self._transaction_list_view.InsertItem(list_item)
-            self._transaction_list_view.SetItem(index, 1, str(trans[2]))
-            self._transaction_list_view.SetItem(index, 2, trans[3])
-            self._transaction_list_view.SetItem(index, 3, '$' + str(trans[4]))
-            self._transaction_list_view.SetItem(index, 4, trans[5])
+        self._trans_listview_ctrl.DeleteAllItems()
+        for index, trans_dto in enumerate(transaction_list):
+            list_item = self._create_list_item(index, trans_dto.id)
+            list_item_index = self._trans_listview_ctrl.InsertItem(list_item)
+            self._trans_listview_ctrl.SetItem(list_item_index, self._DATET_COL, trans_dto.date)
+            self._trans_listview_ctrl.SetItem(list_item_index, self._CATEG_COL, f"{trans_dto.category}")
+            self._trans_listview_ctrl.SetItem(list_item_index, self._PAYME_COL, trans_dto.payment_method)
+            self._trans_listview_ctrl.SetItem(list_item_index, self._TOTAL_COL, f"${trans_dto.total_expense}")
+            self._trans_listview_ctrl.SetItem(list_item_index, self._DESCR_COL, trans_dto.description)
 
     @staticmethod
-    def _create_list_item(index, primary_key, date):
+    def _create_list_item(index, primary_key):
+        """A ListView must be populated with a ListItem."""
         list_item = wx.ListItem()
         list_item.SetId(index)
         list_item.SetData(primary_key)
-        list_item.SetText(date)
+        list_item.SetText(f"{index + 1}")
         return list_item
 
     def get_selected_transaction_id(self):
-        list_id = self._transaction_list_view.GetFirstSelected()
-        return self._transaction_list_view.GetItemData(list_id)
+        list_id = self._trans_listview_ctrl.GetFirstSelected()
+        return self._trans_listview_ctrl.GetItemData(list_id)
 
     def bind_add_transaction_action(self, button_action):
         command = self._create_command(button_action)
@@ -129,7 +147,6 @@ class BudgetView(wx.Frame):
 
     @staticmethod
     def _create_command(button_action):
-        # TODO: When things get out of hand, move to a command class
         def command(event):
             return button_action()
         return command

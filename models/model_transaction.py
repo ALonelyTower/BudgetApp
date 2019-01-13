@@ -45,5 +45,11 @@ class Transaction:
 
     @classmethod
     def find_all(cls):
-        # TODO: Convert Rows into Transaction objects
-        return Database.find_all_transactions_with_categories()
+        rows = Database.find_all_transactions_with_categories()
+
+        if not rows:
+            return []
+        else:
+            return [TransactionDTO(*row) for row in rows]
+
+

@@ -9,7 +9,6 @@ from models.data_transfer_object import TransactionDTO, CategoryDTO
 
 class TransactionView(wx.Dialog):
     # TODO: Should eventually use pertinent data types like DateTime and Decimal
-    # TODO: Should eventually use Data Transfer Object to codify expected Data Structure
     def __init__(self, transaction_id=-1, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition,
                  size=wx.DefaultSize, style=wx.DEFAULT_DIALOG_STYLE, name=wx.DialogNameStr):
         super().__init__(parent, id, title, pos, size=(400, 600), style=style, name=name)
