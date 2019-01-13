@@ -217,3 +217,10 @@ class TransactionView(wx.Dialog):
     def _delete_warning_popup(self):
         return wx.MessageDialog(parent=self, message="Are you sure you want to delete this Transaction?",
                                 caption="Confirm Deletion", style=wx.OK | wx.CANCEL)
+
+
+if __name__ == '__main__':
+    app = wx.App()
+    trans_view = TransactionView()
+    trans_view.display_readonly_form()
+    app.MainLoop()

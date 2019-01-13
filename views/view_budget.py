@@ -5,19 +5,13 @@ from views import view_menu
 
 
 class BudgetView(wx.Frame):
-    # TODO: Add Asset class
-    def __init__(self, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition, size=wx.DefaultSize,
+    def __init__(self, parent=None, id=wx.ID_ANY, title="", pos=wx.DefaultPosition, size=wx.Size(1080, 720),
                  style=wx.DEFAULT_FRAME_STYLE, name=wx.FrameNameStr):
-        # Unnecessary, but prefer to be explicit as it was driving me crazy keeping track.
+
         super().__init__(parent, id, title, pos, size, style, name)
 
-        self._set_default_window_size()
         self._init_gui_control_widgets()
         self._bind_commands_to_gui_controls()
-
-    def _set_default_window_size(self):
-        self._window_size = wx.Size(1050, 720)
-        self.SetMinSize(wx.Size(self._window_size))
 
     def _init_gui_control_widgets(self):
         # Methods are positionally dependent.  Reordering them may break things.
@@ -38,6 +32,7 @@ class BudgetView(wx.Frame):
         self.Show()
 
     def _create_transaction_button(self):
+        # TODO: Move this explicit dependency somewhere else!
         bitmap_image_path = "W:\\BudgetApp\\appbar_add.png"
         if self._bitmap_image_exists(bitmap_image_path):
             add_bitmap_icon = wx.Bitmap("W:\\BudgetApp\\appbar_add.png")
@@ -138,3 +133,10 @@ class BudgetView(wx.Frame):
         def command(event):
             return button_action()
         return command
+
+
+if __name__ == '__main__':
+    app = wx.App()
+    budget_view = BudgetView()
+    budget_view.Show()
+    app.MainLoop()
