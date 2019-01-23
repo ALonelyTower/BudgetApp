@@ -45,6 +45,7 @@ if __name__ == '__main__':
     app = wx.App(False)
     budget_v = BudgetView()
     categ_p = CategoryPresenter()
+    budget_v.bind_edit_categories_menu_item(categ_p.display_categories_menu)
     trans_p = TransactionPresenter(categ_p)
     budget_presenter = BudgetPresenter(budget_v, trans_p)
     budget_v.start()

@@ -1,4 +1,5 @@
 from models.model_category import Category
+from views.view_category import CategoryWindow
 
 
 class CategoryPresenter:
@@ -6,6 +7,10 @@ class CategoryPresenter:
     def __init__(self):
         self._categories = Category.find_all()
         self._is_dirty = False
+
+    def display_categories_menu(self):
+        category_win = CategoryWindow()
+        category_win.Show()
 
     def get_categories(self):
         if self._is_dirty:

@@ -21,7 +21,7 @@ class MenuBar(wx.MenuBar):
     def on_quit(self, event):
         self.parent.Close()
 
-    def bind_categories_context_button(self, button_action, ):
+    def bind_categories_context_button(self, button_action):
         self.Bind(wx.EVT_MENU, button_action, self._category_menu_item)
 
 
