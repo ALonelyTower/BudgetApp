@@ -10,6 +10,9 @@ class CategoryPresenter:
 
     def display_categories_menu(self):
         category_win = CategoryWindow()
+        categories = Category.find_all()
+        category_win.set_categories(categories)
+
         category_win.Show()
 
     def get_categories(self):
